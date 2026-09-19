@@ -19,8 +19,16 @@ if ($runtimeVersion.ToString().Trim() -ne '3.11') {
     throw "La ruta normal de pruebas requiere CPython 3.11.x; .venv usa Python $($runtimeVersion.ToString().Trim()). Elimina .venv y ejecuta .\scripts\bootstrap.ps1."
 }
 
-& $venvPython -m pytest
-if ($LASTEXITCODE -ne 0) {
+$pytestBaseTemp = Join-Path $repositoryRoot '.test-tmp'
+if (Test-Path -LiteralPath $pytestBaseTemp) {
+    Remove-Item -LiteralPath $pytestBaseTemp -Recurse -Force
+}
+& $venvPython -m pytest -p no:cacheprovider --basetemp $pytestBaseTemp
+$pytestExitCode = $LASTEXITCODE
+if (Test-Path -LiteralPath $pytestBaseTemp) {
+    Remove-Item -LiteralPath $pytestBaseTemp -Recurse -Force
+}
+if ($pytestExitCode -ne 0) {
     throw 'pytest falló.'
 }
 

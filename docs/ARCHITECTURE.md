@@ -147,6 +147,8 @@ No debe fijarse definitivamente una combinación `faster-whisper/CTranslate2/CUD
 
 La instalación GPU actual de faster-whisper requiere prestar especial atención a la compatibilidad entre CTranslate2, CUDA 12, cuBLAS y cuDNN 9. El proyecto no debe instalar ciegamente "latest" sin validar la combinación.
 
+Combinación CUDA validada localmente en Fase 4: NVIDIA GeForce RTX 2060 (driver 591.74), CUDA Toolkit 12.6, cuBLAS de CUDA 12.6, cuDNN 9.11.0.98 para CUDA 12, CPython 3.11.9, faster-whisper 1.2.1 y CTranslate2 4.8.2. Las DLL de CUDA/cuDNN se preparan sólo para el proceso antes de cargar CTranslate2; CPU sigue disponible sin ellas.
+
 ## Automatización
 
 La primera interfaz operativa será una CLI para un archivo.

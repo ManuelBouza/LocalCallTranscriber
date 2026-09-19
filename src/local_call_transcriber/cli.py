@@ -5,17 +5,18 @@ import os
 from pathlib import Path
 
 from local_call_transcriber.engines.faster_whisper import FasterWhisperEngine
+from local_call_transcriber.hardware import COMPUTE_TYPE_CHOICES, DEVICE_CHOICES
 from local_call_transcriber.orchestration import InputValidationError, transcribe_file
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Transcribe un MP4 local en CPU con faster-whisper.")
+    parser = argparse.ArgumentParser(description="Transcribe un MP4 local con faster-whisper.")
     parser.add_argument("input", type=Path, help="Archivo MP4 local")
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
     parser.add_argument("--model", default="tiny", help="Modelo faster-whisper a descargar localmente")
     parser.add_argument("--language", default=None, help="Idioma ISO, por ejemplo es o en; omite para auto")
-    parser.add_argument("--device", choices=["cpu"], default="cpu")
-    parser.add_argument("--compute-type", choices=["int8"], default="int8")
+    parser.add_argument("--device", choices=DEVICE_CHOICES, default="auto")
+    parser.add_argument("--compute-type", choices=COMPUTE_TYPE_CHOICES, default="auto")
     parser.add_argument("--no-vad", action="store_true", help="Desactiva el filtro VAD")
     parser.add_argument("--word-timestamps", action="store_true", help="Incluye timestamps por palabra en JSON")
     parser.add_argument("--overwrite", action="store_true", help="Permite sustituir salidas de la misma llamada")
@@ -33,7 +34,12 @@ def default_model_cache() -> Path:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     cache = args.model_cache or default_model_cache()
-    engine = FasterWhisperEngine(model_name=args.model, model_cache=cache, compute_type=args.compute_type)
+    engine = FasterWhisperEngine(
+        model_name=args.model,
+        model_cache=cache,
+        device=args.device,
+        compute_type=args.compute_type,
+    )
     try:
         outputs = transcribe_file(
             engine=engine,

@@ -83,7 +83,7 @@ Completado: serializadores TXT, JSON, SRT y VTT con segmentos ordenados cronoló
 
 ## Fase 4 — Aceleración CUDA opcional
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: habilitar GPU sin romper CPU.
 
@@ -96,6 +96,8 @@ Entregables previstos:
 - documentación exacta de la combinación validada de driver/runtime/librerías.
 
 Las instalaciones de CUDA/cuDNN que sean necesarias deberán estar justificadas por el preflight y ser explícitas.
+
+Completado: la CLI admite `--device cpu|cuda|auto`. `auto` intenta CUDA y vuelve a CPU `int8` con aviso si falla la inicialización; `cuda` informa un diagnóstico accionable. Se validaron transcripciones reales con CTranslate2 sobre la RTX 2060 en `float16` e `int8_float16`.
 
 ## Fase 5 — Benchmark y defaults
 

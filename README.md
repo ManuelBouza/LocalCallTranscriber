@@ -111,3 +111,13 @@ El primer uso de un modelo lo descarga a `%LOCALAPPDATA%\LocalCallTranscriber\mo
 ```powershell
 .\scripts\smoke_cpu.ps1
 ```
+
+## CUDA opcional
+
+La CLI admite `--device auto`, `--device cuda` y `--device cpu`. `auto` intenta GPU y vuelve a CPU `int8` si CUDA no se inicializa; `cuda` falla con un diagnóstico accionable para no ocultar una instalación incompleta.
+
+La combinación validada en este equipo es CUDA Toolkit 12.6, cuDNN 9.11.0.98 para CUDA 12, faster-whisper 1.2.1 y CTranslate2 4.8.2. Se verificó mediante transcripciones locales reales en `float16` e `int8_float16`.
+
+```powershell
+.\.venv\Scripts\python.exe -m local_call_transcriber .\llamada.mp4 --device auto --compute-type auto
+```

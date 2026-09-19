@@ -144,3 +144,11 @@ La primera ruta de transcripción usa `faster-whisper 1.2.1`, CTranslate2 `4.8.2
 Las salidas SRT y VTT se generan junto a TXT y JSON, ordenadas por timestamp inicial. Los timestamps por palabra se solicitan con `--word-timestamps`. El CLI no sustituye salidas existentes salvo que se indique `--overwrite`.
 
 **Motivo:** preservar resultados previos y ofrecer formatos interoperables sin asumir que es seguro reemplazar transcripciones existentes.
+
+## D-018 — Ruta CUDA validada con fallback en proceso
+
+**Estado:** Aceptada
+
+La ruta GPU usa CUDA Toolkit 12.6, cuDNN 9.11.0.98 para CUDA 12, faster-whisper 1.2.1 y CTranslate2 4.8.2. `device=cuda` devuelve un error con instrucciones de diagnóstico cuando no puede inicializarse. `device=auto` intenta CUDA y, si falla durante la inicialización, continúa en CPU con `int8` y muestra un aviso. Se validaron transcripciones reales locales en una RTX 2060 con `float16` e `int8_float16`.
+
+**Motivo:** la aceleración es útil pero nunca puede impedir el funcionamiento CPU. Las DLL se añaden sólo al proceso para evitar depender de que una terminal herede cambios de PATH.
