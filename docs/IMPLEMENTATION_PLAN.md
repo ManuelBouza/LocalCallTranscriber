@@ -67,7 +67,7 @@ Completado: CLI CPU basada en `faster-whisper 1.2.1`, con `device=cpu`, `compute
 
 ## Fase 3 — Formatos y timestamps
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: completar las salidas de usuario.
 
