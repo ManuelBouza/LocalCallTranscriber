@@ -7,5 +7,7 @@ from local_call_transcriber.domain import TranscriptResult
 
 
 class TranscriptionEngine(Protocol):
-    def transcribe(self, media_path: Path, language: str | None, vad: bool) -> TranscriptResult:
+    def transcribe(
+        self, media_path: Path, language: str | None, vad: bool, word_timestamps: bool
+    ) -> TranscriptResult:
         """Transcribe un archivo local y devuelve un resultado independiente del motor."""

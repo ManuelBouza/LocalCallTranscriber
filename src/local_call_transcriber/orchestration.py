@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from local_call_transcriber.engines.base import TranscriptionEngine
-from local_call_transcriber.outputs import write_json, write_txt
+from local_call_transcriber.domain import TranscriptResult
+from local_call_transcriber.outputs import write_json, write_srt, write_txt, write_vtt
 
 
 class InputValidationError(ValueError):
@@ -15,6 +16,8 @@ class InputValidationError(ValueError):
 class OutputPaths:
     txt: Path
     json: Path
+    srt: Path
+    vtt: Path
 
 
 def validate_mp4(media_path: Path) -> None:
@@ -30,12 +33,33 @@ def transcribe_file(
     output_dir: Path,
     language: str | None,
     vad: bool,
+    word_timestamps: bool,
+    overwrite: bool,
 ) -> OutputPaths:
     validate_mp4(media_path)
     output_dir.mkdir(parents=True, exist_ok=True)
-    result = engine.transcribe(media_path=media_path, language=language, vad=vad)
-    txt_path = output_dir / f"{media_path.stem}.txt"
-    json_path = output_dir / f"{media_path.stem}.json"
-    write_txt(result, txt_path)
-    write_json(result, json_path)
-    return OutputPaths(txt=txt_path, json=json_path)
+    outputs = OutputPaths(
+        txt=output_dir / f"{media_path.stem}.txt",
+        json=output_dir / f"{media_path.stem}.json",
+        srt=output_dir / f"{media_path.stem}.srt",
+        vtt=output_dir / f"{media_path.stem}.vtt",
+    )
+    existing = [path for path in (outputs.txt, outputs.json, outputs.srt, outputs.vtt) if path.exists()]
+    if existing and not overwrite:
+        raise InputValidationError(
+            "Ya existen salidas para esta llamada. Usa --overwrite para sustituirlas: "
+            + ", ".join(str(path) for path in existing)
+        )
+    result = engine.transcribe(
+        media_path=media_path, language=language, vad=vad, word_timestamps=word_timestamps
+    )
+    ordered_result = TranscriptResult(
+        model=result.model,
+        language=result.language,
+        segments=tuple(sorted(result.segments, key=lambda segment: segment.start)),
+    )
+    write_txt(ordered_result, outputs.txt)
+    write_json(ordered_result, outputs.json)
+    write_srt(ordered_result, outputs.srt)
+    write_vtt(ordered_result, outputs.vtt)
+    return outputs

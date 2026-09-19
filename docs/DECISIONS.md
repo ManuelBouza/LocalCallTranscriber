@@ -136,3 +136,11 @@ La ruta normal de bootstrap y pruebas usa CPython 3.11.x, seleccionado explícit
 La primera ruta de transcripción usa `faster-whisper 1.2.1`, CTranslate2 `4.8.2` y PyAV `18.1.0` con `device=cpu` y `compute_type=int8`. PyAV se usa para decodificar MP4 sin una instalación externa de FFmpeg. El modelo inicial de smoke test es `tiny` y se almacena fuera del repositorio.
 
 **Motivo:** ofrece una ruta local verificable y compatible con equipos sin CUDA antes de evaluar aceleración GPU o modelos de mayor calidad.
+
+## D-017 — Salidas ordenadas y sobrescritura explícita
+
+**Estado:** Aceptada
+
+Las salidas SRT y VTT se generan junto a TXT y JSON, ordenadas por timestamp inicial. Los timestamps por palabra se solicitan con `--word-timestamps`. El CLI no sustituye salidas existentes salvo que se indique `--overwrite`.
+
+**Motivo:** preservar resultados previos y ofrecer formatos interoperables sin asumir que es seguro reemplazar transcripciones existentes.

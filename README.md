@@ -102,7 +102,9 @@ La primera ruta operativa usa `faster-whisper 1.2.1` con `device=cpu` y `compute
 .\.venv\Scripts\python.exe -m local_call_transcriber .\llamada.mp4 --output-dir .\output --model tiny --device cpu --compute-type int8
 ```
 
-El comando genera `llamada.txt` y `llamada.json`. El JSON incluye al menos el modelo, idioma, segmentos y sus timestamps. Omite `--language` para detectar el idioma automáticamente o indica, por ejemplo, `--language es`.
+El comando genera `llamada.txt`, `llamada.json`, `llamada.srt` y `llamada.vtt`. El JSON incluye al menos el modelo, idioma, segmentos y sus timestamps. Omite `--language` para detectar el idioma automáticamente o indica, por ejemplo, `--language es`.
+
+Usa `--word-timestamps` para incluir timestamps por palabra en el JSON. Las salidas se ordenan cronológicamente. Por seguridad, el CLI rechaza salidas existentes; añade `--overwrite` solo cuando quieras sustituir explícitamente los cuatro archivos de esa llamada.
 
 El primer uso de un modelo lo descarga a `%LOCALAPPDATA%\LocalCallTranscriber\models`; no se versiona. Para validar la ruta real CPU con un MP4 temporal generado por PyAV:
 

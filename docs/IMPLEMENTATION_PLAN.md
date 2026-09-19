@@ -67,7 +67,7 @@ Completado: CLI CPU basada en `faster-whisper 1.2.1`, con `device=cpu`, `compute
 
 ## Fase 3 — Formatos y timestamps
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: completar las salidas de usuario.
 
@@ -78,6 +78,8 @@ Entregables previstos:
 - timestamps por palabra configurables;
 - validación de nombres/rutas de salida;
 - pruebas de serialización.
+
+Completado: serializadores TXT, JSON, SRT y VTT con segmentos ordenados cronológicamente. `--word-timestamps` habilita las palabras en JSON y `--overwrite` exige una decisión explícita antes de reemplazar salidas existentes. Las pruebas cubren formatos, orden, timestamps y la protección contra sobrescritura.
 
 ## Fase 4 — Aceleración CUDA opcional
 

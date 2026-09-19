@@ -17,6 +17,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", choices=["cpu"], default="cpu")
     parser.add_argument("--compute-type", choices=["int8"], default="int8")
     parser.add_argument("--no-vad", action="store_true", help="Desactiva el filtro VAD")
+    parser.add_argument("--word-timestamps", action="store_true", help="Incluye timestamps por palabra en JSON")
+    parser.add_argument("--overwrite", action="store_true", help="Permite sustituir salidas de la misma llamada")
     parser.add_argument("--model-cache", type=Path, default=None)
     return parser
 
@@ -39,6 +41,8 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             language=args.language,
             vad=not args.no_vad,
+            word_timestamps=args.word_timestamps,
+            overwrite=args.overwrite,
         )
     except InputValidationError as error:
         print(f"Error de entrada: {error}")
@@ -48,4 +52,6 @@ def main(argv: list[str] | None = None) -> int:
         return 3
     print(f"TXT: {outputs.txt}")
     print(f"JSON: {outputs.json}")
+    print(f"SRT: {outputs.srt}")
+    print(f"VTT: {outputs.vtt}")
     return 0

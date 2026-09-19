@@ -8,6 +8,14 @@ class TranscriptSegment:
     start: float
     end: float
     text: str
+    words: tuple["TranscriptWord", ...] = ()
+
+
+@dataclass(frozen=True)
+class TranscriptWord:
+    start: float
+    end: float
+    text: str
 
 
 @dataclass(frozen=True)
@@ -20,5 +28,5 @@ class TranscriptResult:
         return {
             "model": self.model,
             "language": self.language,
-            "segments": [asdict(segment) for segment in self.segments],
+            "segments": [asdict(segment) for segment in sorted(self.segments, key=lambda segment: segment.start)],
         }
