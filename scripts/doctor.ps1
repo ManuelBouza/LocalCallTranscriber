@@ -75,13 +75,37 @@ Add-Diagnostic -Component 'PowerShell' -Status 'PASS' -Summary "PowerShell $($PS
     edition = $PSVersionTable.PSEdition
 }
 
-$pythonInstallations = [System.Collections.Generic.List[string]]::new()
+$pythonInterpreters = [System.Collections.Generic.List[object]]::new()
+$pythonLauncherEntries = [System.Collections.Generic.List[string]]::new()
+
+function Add-PythonInterpreter {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Source
+    )
+
+    $existing = @($pythonInterpreters | Where-Object { $_.path -ieq $Path })
+    if ($existing.Count -gt 0) {
+        return
+    }
+
+    $versionResult = Get-CommandOutput -Command $Path -Arguments @('--version')
+    $pythonInterpreters.Add([pscustomobject]@{
+        path    = $Path
+        source  = $Source
+        version = if ($versionResult.succeeded) { $versionResult.output -join ' ' } else { $null }
+    })
+}
+
 $pyLauncher = Get-Command py.exe -ErrorAction SilentlyContinue
 if ($null -ne $pyLauncher) {
     $launcherResult = Get-CommandOutput -Command $pyLauncher.Source -Arguments @('-0p')
     if ($launcherResult.succeeded) {
         foreach ($line in $launcherResult.output) {
-            $pythonInstallations.Add($line)
+            $pythonLauncherEntries.Add($line)
+            if ($line -match '(?<path>[A-Za-z]:\\.+?python(?:\.exe)?)\s*$') {
+                Add-PythonInterpreter -Path $Matches.path -Source 'py launcher'
+            }
         }
     }
 }
@@ -91,17 +115,14 @@ if ($null -eq $pythonCommand) {
     $pythonCommand = Get-Command python -ErrorAction SilentlyContinue
 }
 if ($null -ne $pythonCommand) {
-    $versionResult = Get-CommandOutput -Command $pythonCommand.Source -Arguments @('--version')
-    if ($versionResult.succeeded) {
-        $pythonInstallations.Add("PATH: $($pythonCommand.Source) ($($versionResult.output -join ' '))")
-    }
-    else {
-        $pythonInstallations.Add("PATH: $($pythonCommand.Source)")
-    }
+    Add-PythonInterpreter -Path $pythonCommand.Source -Source 'PATH'
 }
 
-if ($pythonInstallations.Count -gt 0) {
-    Add-Diagnostic -Component 'Python' -Status 'PASS' -Summary "$($pythonInstallations.Count) instalación(es) relevante(s) detectada(s)." -Details @{ installations = @($pythonInstallations) }
+if ($pythonInterpreters.Count -gt 0) {
+    Add-Diagnostic -Component 'Python' -Status 'PASS' -Summary "$($pythonInterpreters.Count) intérprete(s) relevante(s) detectado(s)." -Details @{
+        interpreters     = @($pythonInterpreters)
+        launcher_entries = @($pythonLauncherEntries)
+    }
 }
 else {
     Add-Diagnostic -Component 'Python' -Status 'NOT_FOUND' -Summary 'No se detectó Python mediante el launcher ni PATH.'
@@ -154,62 +175,132 @@ else {
     $recommendations.Add('No se detectó GPU NVIDIA; la ruta CPU seguirá siendo la ruta operativa obligatoria.')
 }
 
-$cudaPath = [Environment]::GetEnvironmentVariable('CUDA_PATH', 'Process')
-if ([string]::IsNullOrWhiteSpace($cudaPath)) {
-    $cudaPath = [Environment]::GetEnvironmentVariable('CUDA_PATH', 'User')
-}
-if ([string]::IsNullOrWhiteSpace($cudaPath)) {
-    $cudaPath = [Environment]::GetEnvironmentVariable('CUDA_PATH', 'Machine')
+$cudaPaths = [System.Collections.Generic.List[string]]::new()
+foreach ($target in @('Process', 'User', 'Machine')) {
+    $candidate = [Environment]::GetEnvironmentVariable('CUDA_PATH', $target)
+    if (-not [string]::IsNullOrWhiteSpace($candidate) -and (Test-Path -LiteralPath $candidate -PathType Container) -and $cudaPaths -notcontains $candidate) {
+        $cudaPaths.Add($candidate)
+    }
 }
 
-$nvcc = Get-Command nvcc.exe -ErrorAction SilentlyContinue
-if ($null -eq $nvcc) {
-    $nvcc = Get-Command nvcc -ErrorAction SilentlyContinue
+$cudaToolkitRoot = 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA'
+if (Test-Path -LiteralPath $cudaToolkitRoot -PathType Container) {
+    foreach ($directory in @(Get-ChildItem -LiteralPath $cudaToolkitRoot -Directory -ErrorAction SilentlyContinue)) {
+        if ($cudaPaths -notcontains $directory.FullName) {
+            $cudaPaths.Add($directory.FullName)
+        }
+    }
 }
-if ($null -ne $nvcc) {
-    $nvccResult = Get-CommandOutput -Command $nvcc.Source -Arguments @('--version')
+
+$nvccCandidates = [System.Collections.Generic.List[string]]::new()
+$nvccCommand = Get-Command nvcc.exe -ErrorAction SilentlyContinue
+if ($null -eq $nvccCommand) {
+    $nvccCommand = Get-Command nvcc -ErrorAction SilentlyContinue
+}
+if ($null -ne $nvccCommand) {
+    $nvccCandidates.Add($nvccCommand.Source)
+}
+foreach ($path in $cudaPaths) {
+    $candidate = Join-Path $path 'bin\nvcc.exe'
+    if ((Test-Path -LiteralPath $candidate -PathType Leaf) -and $nvccCandidates -notcontains $candidate) {
+        $nvccCandidates.Add($candidate)
+    }
+}
+if ($nvccCandidates.Count -gt 0) {
+    $nvccResult = Get-CommandOutput -Command $nvccCandidates[0] -Arguments @('--version')
     if ($nvccResult.succeeded) {
-        Add-Diagnostic -Component 'CUDA' -Status 'PASS' -Summary 'CUDA toolkit detectable mediante nvcc.' -Details @{ nvcc = $nvcc.Source; version = @($nvccResult.output); cuda_path = $cudaPath }
+        Add-Diagnostic -Component 'CUDA Toolkit' -Status 'PASS' -Summary 'CUDA toolkit detectable mediante nvcc.' -Details @{ nvcc = $nvccCandidates[0]; version = @($nvccResult.output); toolkit_paths = @($cudaPaths) }
     }
     else {
-        Add-Diagnostic -Component 'CUDA' -Status 'WARN' -Summary 'nvcc existe, pero no devolvió una versión válida.' -Details @{ nvcc = $nvcc.Source; output = @($nvccResult.output) }
+        Add-Diagnostic -Component 'CUDA Toolkit' -Status 'WARN' -Summary 'Se detectó nvcc, pero no devolvió una versión válida.' -Details @{ nvcc = $nvccCandidates[0]; output = @($nvccResult.output); toolkit_paths = @($cudaPaths) }
     }
 }
-elseif (-not [string]::IsNullOrWhiteSpace($cudaPath) -and (Test-Path -LiteralPath $cudaPath -PathType Container)) {
-    Add-Diagnostic -Component 'CUDA' -Status 'WARN' -Summary 'CUDA_PATH apunta a un directorio existente, pero nvcc no está disponible en PATH.' -Details @{ cuda_path = $cudaPath }
+elseif ($cudaPaths.Count -gt 0) {
+    Add-Diagnostic -Component 'CUDA Toolkit' -Status 'WARN' -Summary 'Se detectaron directorios de CUDA, pero no nvcc.' -Details @{ toolkit_paths = @($cudaPaths) }
 }
 else {
-    Add-Diagnostic -Component 'CUDA' -Status 'NOT_FOUND' -Summary 'No se detectó CUDA toolkit.'
-    $recommendations.Add('CUDA no está disponible actualmente; no se instalará durante el preflight. La compatibilidad se evaluará en la fase CUDA opcional.')
+    Add-Diagnostic -Component 'CUDA Toolkit' -Status 'NOT_FOUND' -Summary 'No se detectó CUDA toolkit.'
 }
 
-$cudnnFiles = @()
-if (-not [string]::IsNullOrWhiteSpace($cudaPath) -and (Test-Path -LiteralPath $cudaPath -PathType Container)) {
-    try {
-        $cudnnFiles = @(Get-ChildItem -Path (Join-Path $cudaPath 'bin') -Filter 'cudnn*.dll' -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
+$runtimeRoots = [System.Collections.Generic.List[object]]::new()
+$seenRuntimeRoots = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+function Add-RuntimeRoot {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Source
+    )
+
+    $normalized = $Path.Trim().Trim('"')
+    if (-not [string]::IsNullOrWhiteSpace($normalized) -and (Test-Path -LiteralPath $normalized -PathType Container) -and $seenRuntimeRoots.Add($normalized)) {
+        $runtimeRoots.Add([pscustomobject]@{ path = $normalized; source = $Source })
     }
-    catch {
-        $cudnnFiles = @()
-    }
-}
-if ($cudnnFiles.Count -gt 0) {
-    Add-Diagnostic -Component 'cuDNN' -Status 'PASS' -Summary "$($cudnnFiles.Count) biblioteca(s) cuDNN detectada(s) junto a CUDA_PATH." -Details @{ files = @($cudnnFiles); cuda_path = $cudaPath }
-}
-else {
-    Add-Diagnostic -Component 'cuDNN' -Status 'NOT_FOUND' -Summary 'No se detectó cuDNN en la ubicación CUDA_PATH consultada.'
 }
 
-if ($null -ne $pythonCommand) {
-    $ct2Result = Get-CommandOutput -Command $pythonCommand.Source -Arguments @('-c', 'import importlib.util; print(importlib.util.find_spec("ctranslate2") is not None)')
-    if ($ct2Result.succeeded -and (($ct2Result.output -join '').ToLowerInvariant() -eq 'true')) {
-        Add-Diagnostic -Component 'CTranslate2' -Status 'PASS' -Summary 'CTranslate2 está instalado para el Python disponible en PATH.' -Details @{ python = $pythonCommand.Source }
+foreach ($directory in ($env:Path -split [System.IO.Path]::PathSeparator)) {
+    Add-RuntimeRoot -Path $directory -Source 'process PATH'
+}
+foreach ($path in $cudaPaths) {
+    Add-RuntimeRoot -Path (Join-Path $path 'bin') -Source 'CUDA installation'
+}
+Add-RuntimeRoot -Path 'C:\Program Files\NVIDIA Corporation\NVSMI' -Source 'NVIDIA NVSMI'
+
+$libraryDefinitions = @(
+    [pscustomobject]@{ category = 'CUDA Runtime'; pattern = 'cudart64*.dll' },
+    [pscustomobject]@{ category = 'cuBLAS'; pattern = 'cublas64*.dll' },
+    [pscustomobject]@{ category = 'cuBLAS'; pattern = 'cublasLt64*.dll' },
+    [pscustomobject]@{ category = 'cuDNN'; pattern = 'cudnn*.dll' }
+)
+$runtimeLibraries = [System.Collections.Generic.List[object]]::new()
+$seenLibraryPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($root in $runtimeRoots) {
+    foreach ($definition in $libraryDefinitions) {
+        foreach ($library in @(Get-ChildItem -LiteralPath $root.path -Filter $definition.pattern -File -ErrorAction SilentlyContinue)) {
+            if ($seenLibraryPaths.Add($library.FullName)) {
+                $runtimeLibraries.Add([pscustomobject]@{
+                    category = $definition.category
+                    name     = $library.Name
+                    path     = $library.FullName
+                    source   = $root.source
+                })
+            }
+        }
+    }
+}
+
+foreach ($runtimeComponent in @('CUDA Runtime', 'cuBLAS', 'cuDNN')) {
+    $libraries = @($runtimeLibraries | Where-Object { $_.category -eq $runtimeComponent })
+    if ($libraries.Count -gt 0) {
+        Add-Diagnostic -Component $runtimeComponent -Status 'PASS' -Summary "$($libraries.Count) biblioteca(s) $runtimeComponent detectada(s) para el proceso actual." -Details @{ libraries = @($libraries); search_roots = @($runtimeRoots) }
     }
     else {
-        Add-Diagnostic -Component 'CTranslate2' -Status 'NOT_FOUND' -Summary 'CTranslate2 no está instalado para el Python disponible en PATH.' -Details @{ python = $pythonCommand.Source }
+        Add-Diagnostic -Component $runtimeComponent -Status 'NOT_FOUND' -Summary "No se detectaron bibliotecas $runtimeComponent en PATH ni ubicaciones NVIDIA conocidas." -Details @{ search_roots = @($runtimeRoots) }
     }
 }
+if (@($runtimeLibraries | Where-Object { $_.category -eq 'CUDA Runtime' }).Count -eq 0) {
+    $recommendations.Add('No se detectó el runtime CUDA para el proceso actual; no se instalará durante el preflight. La compatibilidad se evaluará en la fase CUDA opcional.')
+}
+
+$ct2Checks = [System.Collections.Generic.List[object]]::new()
+foreach ($interpreter in $pythonInterpreters) {
+    $ct2Result = Get-CommandOutput -Command $interpreter.path -Arguments @('-c', 'import importlib.metadata, importlib.util; spec = importlib.util.find_spec("ctranslate2"); print(importlib.metadata.version("ctranslate2") if spec else "")')
+    $version = if ($ct2Result.succeeded -and $ct2Result.output.Count -gt 0) { $ct2Result.output[0] } else { $null }
+    $ct2Checks.Add([pscustomobject]@{
+        interpreter = $interpreter.path
+        source      = $interpreter.source
+        installed   = ($null -ne $version)
+        version     = $version
+        error       = if ($ct2Result.succeeded) { $null } else { $ct2Result.output -join ' ' }
+    })
+}
+$ct2Installed = @($ct2Checks | Where-Object { $_.installed })
+if ($ct2Installed.Count -gt 0) {
+    Add-Diagnostic -Component 'CTranslate2' -Status 'PASS' -Summary "CTranslate2 detectado en $($ct2Installed.Count) intérprete(s) Python." -Details @{ installed_in = @($ct2Installed); interpreter_checks = @($ct2Checks) }
+}
+elseif ($pythonInterpreters.Count -gt 0) {
+    Add-Diagnostic -Component 'CTranslate2' -Status 'NOT_FOUND' -Summary 'CTranslate2 no está instalado en ninguno de los intérpretes Python detectados.' -Details @{ interpreter_checks = @($ct2Checks) }
+}
 else {
-    Add-Diagnostic -Component 'CTranslate2' -Status 'NOT_FOUND' -Summary 'No se pudo comprobar CTranslate2 porque Python no está disponible en PATH.'
+    Add-Diagnostic -Component 'CTranslate2' -Status 'NOT_FOUND' -Summary 'No se pudo comprobar CTranslate2 porque no se detectaron intérpretes Python.' -Details @{ interpreter_checks = @() }
 }
 
 try {

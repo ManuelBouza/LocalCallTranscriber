@@ -104,3 +104,11 @@ No se instalarán ni modificarán CUDA, cuDNN o PATH global antes de completar e
 El preflight se implementa como `scripts/doctor.ps1`. Consulta el estado del equipo y puede emitir un informe JSON, pero no instala software ni modifica `PATH` u otra configuración del sistema.
 
 **Motivo:** disponer de evidencia reproducible del entorno antes de elegir o modificar la ruta CUDA, conservando un flujo seguro en CPU.
+
+## D-013 — Diagnóstico independiente de toolkit y runtime CUDA
+
+**Estado:** Aceptada
+
+El preflight informa por separado el toolkit CUDA (`nvcc`) y las bibliotecas de runtime requeridas habitualmente por CTranslate2 (`cudart`, cuBLAS y cuDNN). También comprueba CTranslate2 en cada intérprete detectado por el launcher de Python o el `PATH`.
+
+**Motivo:** un toolkit no prueba que el runtime sea utilizable, y CTranslate2 puede estar instalado fuera del intérprete Python prioritario del proceso.

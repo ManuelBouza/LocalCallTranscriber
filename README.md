@@ -58,7 +58,7 @@ Para una salida estructurada destinada a automatización o validación:
 .\scripts\doctor.ps1 -AsJson
 ```
 
-La salida informa Windows, PowerShell, instalaciones de Python detectables, GPU NVIDIA/driver/VRAM cuando `nvidia-smi` está disponible, CUDA, cuDNN, CTranslate2 y espacio libre. Cada comprobación usa `PASS`, `WARN`, `FAIL` o `NOT_FOUND`.
+La salida informa Windows, PowerShell, todos los intérpretes Python detectables, GPU NVIDIA/driver/VRAM cuando `nvidia-smi` está disponible, CUDA Toolkit, runtime CUDA, cuBLAS, cuDNN, CTranslate2 y espacio libre. Para CTranslate2 indica el intérprete y la versión detectados. Las bibliotecas CUDA se buscan de forma no destructiva en el `PATH` efectivo y en ubicaciones NVIDIA conocidas. Cada comprobación usa `PASS`, `WARN`, `FAIL` o `NOT_FOUND`.
 
 La validación automatizada de la estructura del informe se ejecuta con:
 
