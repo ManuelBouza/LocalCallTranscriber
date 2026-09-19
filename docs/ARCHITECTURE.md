@@ -134,6 +134,15 @@ Los perfiles candidatos iniciales son:
 Versión candidata inicial investigada:
 - `faster-whisper 1.2.1`.
 
+Baseline CPU validado localmente para la Fase 2:
+- CPython `3.11.9`;
+- `faster-whisper 1.2.1`;
+- `CTranslate2 4.8.2`;
+- `PyAV 18.1.0`;
+- `device=cpu`, `compute_type=int8`.
+
+Esta combinación valida únicamente CPU. No implica compatibilidad CUDA/cuDNN, que queda para su fase específica.
+
 No debe fijarse definitivamente una combinación `faster-whisper/CTranslate2/CUDA/cuDNN` hasta completar las fases de preflight y validación local.
 
 La instalación GPU actual de faster-whisper requiere prestar especial atención a la compatibilidad entre CTranslate2, CUDA 12, cuBLAS y cuDNN 9. El proyecto no debe instalar ciegamente "latest" sin validar la combinación.

@@ -47,7 +47,7 @@ Completado: la ruta normal permanece fijada a CPython 3.11.x. La metadata acepta
 
 ## Fase 2 — Transcripción CPU baseline
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: transcribir un MP4 completamente en CPU.
 
@@ -62,6 +62,8 @@ Entregables previstos:
 - TXT y JSON;
 - pruebas unitarias;
 - smoke test real con fixture permitido localmente.
+
+Completado: CLI CPU basada en `faster-whisper 1.2.1`, con `device=cpu`, `compute_type=int8`, VAD e idioma auto/explícito. Produce TXT y JSON, valida entradas y cuenta con pruebas unitarias y smoke test local de MP4 generado con PyAV.
 
 ## Fase 3 — Formatos y timestamps
 

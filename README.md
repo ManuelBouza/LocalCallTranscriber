@@ -92,4 +92,20 @@ Ejecuta la suite completa —pruebas, lint, smoke test y la validación del pref
 .\scripts\test.ps1
 ```
 
-`requirements-dev.txt` es el lock de desarrollo: fija las dependencias directas y transitivas de las pruebas, lint y build local. Sus actualizaciones deben ser deliberadas y validarse con `./scripts/test.ps1`. Esta fase fija solo las dependencias de desarrollo; las dependencias del motor de transcripción se incorporarán y validarán en su fase correspondiente antes de fijarse.
+`requirements-dev.txt` es el lock local: fija las dependencias directas y transitivas de las pruebas, lint, build y runtime CPU. Sus actualizaciones deben ser deliberadas y validarse con `./scripts/test.ps1`. La combinación CUDA/cuDNN permanece fuera de este lock hasta su fase de validación específica.
+
+## Transcripción CPU inicial
+
+La primera ruta operativa usa `faster-whisper 1.2.1` con `device=cpu` y `compute_type=int8`. PyAV, incluido por la dependencia, decodifica MP4 sin una instalación externa de FFmpeg.
+
+```powershell
+.\.venv\Scripts\python.exe -m local_call_transcriber .\llamada.mp4 --output-dir .\output --model tiny --device cpu --compute-type int8
+```
+
+El comando genera `llamada.txt` y `llamada.json`. El JSON incluye al menos el modelo, idioma, segmentos y sus timestamps. Omite `--language` para detectar el idioma automáticamente o indica, por ejemplo, `--language es`.
+
+El primer uso de un modelo lo descarga a `%LOCALAPPDATA%\LocalCallTranscriber\models`; no se versiona. Para validar la ruta real CPU con un MP4 temporal generado por PyAV:
+
+```powershell
+.\scripts\smoke_cpu.ps1
+```

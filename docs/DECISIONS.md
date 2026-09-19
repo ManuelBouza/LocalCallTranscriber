@@ -128,3 +128,11 @@ El entorno de desarrollo se crea en `.venv` mediante `scripts/bootstrap.ps1`. `r
 La ruta normal de bootstrap y pruebas usa CPython 3.11.x, seleccionado explícitamente mediante el launcher `py`. Una `.venv` de otro minor no se reutiliza silenciosamente. La metadata del paquete conserva el mínimo `>=3.11` para que `-PythonExecutable` pueda crear e instalar entornos experimentales de minors posteriores, pero no cambia el baseline ni habilita la ruta normal de pruebas.
 
 **Motivo:** faster-whisper estable aún no declara soporte integrado para Python 3.14; fijar 3.11 evita que el MVP dependa de un minor no validado solo por aparecer primero en `PATH`.
+
+## D-016 — Baseline CPU faster-whisper con int8
+
+**Estado:** Aceptada
+
+La primera ruta de transcripción usa `faster-whisper 1.2.1`, CTranslate2 `4.8.2` y PyAV `18.1.0` con `device=cpu` y `compute_type=int8`. PyAV se usa para decodificar MP4 sin una instalación externa de FFmpeg. El modelo inicial de smoke test es `tiny` y se almacena fuera del repositorio.
+
+**Motivo:** ofrece una ruta local verificable y compatible con equipos sin CUDA antes de evaluar aceleración GPU o modelos de mayor calidad.
