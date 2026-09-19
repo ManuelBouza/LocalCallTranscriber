@@ -83,7 +83,7 @@ Completado: serializadores TXT, JSON, SRT y VTT con segmentos ordenados cronoló
 
 ## Fase 4 — Aceleración CUDA opcional
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: habilitar GPU sin romper CPU.
 
