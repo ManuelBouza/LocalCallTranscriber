@@ -68,13 +68,19 @@ La validación automatizada de la estructura del informe se ejecuta con:
 
 ## Bootstrap de desarrollo
 
-La fase de bootstrap crea o reutiliza `.venv` con Python 3.11 o superior. Todas las herramientas de desarrollo se instalan únicamente dentro de ese entorno; no se modifica Python global, `PATH`, CUDA ni cuDNN.
+La ruta normal de bootstrap crea o reutiliza `.venv` con **CPython 3.11.x**, el baseline validado para el MVP. Usa el launcher de Python para Windows (`py`) y no selecciona el primer `python.exe` de `PATH`. Todas las herramientas de desarrollo se instalan únicamente dentro de ese entorno; no se modifica Python global, `PATH`, CUDA ni cuDNN.
+
+Si CPython 3.11 no está disponible, instala esa versión y vuelve a ejecutar el bootstrap:
+
+```powershell
+py install 3.11
+```
 
 ```powershell
 .\scripts\bootstrap.ps1
 ```
 
-Para usar un intérprete concreto compatible:
+Para un experimento controlado puede usarse un intérprete concreto compatible. El script lo advierte cuando no sea 3.11 y `scripts/test.ps1` no permitirá utilizarlo como ruta normal:
 
 ```powershell
 .\scripts\bootstrap.ps1 -PythonExecutable 'C:\Ruta\A\python.exe'

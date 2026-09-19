@@ -11,31 +11,28 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $venvPath = Join-Path $repositoryRoot '.venv'
 $venvPython = Join-Path $venvPath 'Scripts\python.exe'
 $requirementsFile = Join-Path $repositoryRoot 'requirements-dev.txt'
+$validatedPythonMajor = 3
+$validatedPythonMinor = 11
 
 function Get-DefaultPythonExecutable {
-    $pythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue
-    if ($null -eq $pythonCommand) {
-        $pythonCommand = Get-Command python -ErrorAction SilentlyContinue
-    }
-    if ($null -ne $pythonCommand) {
-        return $pythonCommand.Source
-    }
-
     $pyLauncher = Get-Command py.exe -ErrorAction SilentlyContinue
     if ($null -eq $pyLauncher) {
         $pyLauncher = Get-Command py -ErrorAction SilentlyContinue
     }
-    if ($null -ne $pyLauncher) {
-        $discovered = & $pyLauncher.Source -3 -c 'import sys; print(sys.executable)'
-        if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($discovered)) {
-            return $discovered.ToString().Trim()
-        }
+    if ($null -eq $pyLauncher) {
+        throw 'No se encontró el launcher de Python para Windows (py). Instala CPython 3.11.x y asegúrate de registrar py.'
     }
 
-    throw 'No se encontró Python. Instala Python 3.11 o superior o usa -PythonExecutable <ruta>.'
+    $discovered = & $pyLauncher.Source '-3.11' -c 'import sys; print(sys.executable)'
+    if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($discovered)) {
+        return $discovered.ToString().Trim()
+    }
+
+    throw 'No se encontró CPython 3.11.x. Instálalo con "py install 3.11" o mediante el instalador oficial y vuelve a ejecutar el bootstrap.'
 }
 
-if ([string]::IsNullOrWhiteSpace($PythonExecutable)) {
+$isExplicitOverride = -not [string]::IsNullOrWhiteSpace($PythonExecutable)
+if (-not $isExplicitOverride) {
     $PythonExecutable = Get-DefaultPythonExecutable
 }
 if (-not (Test-Path -LiteralPath $PythonExecutable -PathType Leaf)) {
@@ -49,6 +46,12 @@ if ($LASTEXITCODE -ne 0) {
 $version = [Version]$versionText.ToString().Trim()
 if ($version.Major -ne 3 -or $version.Minor -lt 11) {
     throw "Python $version no es compatible. Se requiere Python 3.11 o superior."
+}
+if (-not $isExplicitOverride -and ($version.Major -ne $validatedPythonMajor -or $version.Minor -ne $validatedPythonMinor)) {
+    throw "El bootstrap normal requiere CPython $validatedPythonMajor.$validatedPythonMinor.x; se detectó Python $version."
+}
+if ($isExplicitOverride -and ($version.Major -ne $validatedPythonMajor -or $version.Minor -ne $validatedPythonMinor)) {
+    Write-Warning "Python $version es una anulación explícita. El baseline validado del MVP es CPython $validatedPythonMajor.$validatedPythonMinor.x; no uses este entorno para la ruta normal de pruebas."
 }
 
 if (-not (Test-Path -LiteralPath $venvPath)) {
@@ -70,6 +73,9 @@ if ($LASTEXITCODE -ne 0) {
 $venvVersion = [Version]$venvVersionText.ToString().Trim()
 if ($venvVersion.Major -ne 3 -or $venvVersion.Minor -lt 11) {
     throw ".venv usa Python $venvVersion, incompatible con el mínimo 3.11."
+}
+if ($venvVersion.Major -ne $version.Major -or $venvVersion.Minor -ne $version.Minor) {
+    throw ".venv usa Python $venvVersion, pero el intérprete solicitado usa Python $version. Elimina .venv y ejecuta de nuevo el bootstrap para recrearlo con el intérprete correcto."
 }
 
 & $venvPython -m pip --version 2>$null

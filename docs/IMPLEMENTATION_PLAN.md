@@ -29,7 +29,7 @@ Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o J
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: crear el entorno Python local y el conjunto mínimo de herramientas del proyecto.
 
@@ -43,9 +43,7 @@ Entregables previstos:
 
 No incluirá todavía cambios globales de CUDA/cuDNN.
 
-Implementación inicial publicada en `97fa5630700e0969216be7535ea6988f5b61a500`.
-
-Auditoría pendiente: resolver [issue #2](https://github.com/ManuelBouza/LocalCallTranscriber/issues/2) para fijar y validar un runtime Python reproducible antes de comenzar la Fase 2.
+Completado: `scripts/bootstrap.ps1` usa por defecto CPython 3.11.x mediante el launcher `py`, falla de forma accionable cuando no está instalado y no reutiliza `.venv` con otro minor. `scripts/test.ps1` y pytest verifican que la ruta normal se ejecuta con CPython 3.11.
 
 ## Fase 2 — Transcripción CPU baseline
 

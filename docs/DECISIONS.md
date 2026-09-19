@@ -120,3 +120,11 @@ El preflight informa por separado el toolkit CUDA (`nvcc`) y las bibliotecas de 
 El entorno de desarrollo se crea en `.venv` mediante `scripts/bootstrap.ps1`. `requirements-dev.txt` fija las dependencias directas y transitivas de desarrollo, incluidas setuptools, pytest y Ruff; el paquete se instala en modo editable sin instalar motores de transcripción todavía. Cualquier actualización del lock requiere una ejecución verde de `scripts/test.ps1`.
 
 **Motivo:** obtener un ciclo de pruebas reproducible sin modificar Python global ni fijar prematuramente dependencias de CPU/GPU que requieren validación posterior.
+
+## D-015 — CPython 3.11.x como baseline validado del MVP
+
+**Estado:** Aceptada
+
+La ruta normal de bootstrap y pruebas usa CPython 3.11.x, seleccionado explícitamente mediante el launcher `py`. Una `.venv` de otro minor no se reutiliza silenciosamente. `-PythonExecutable` permite experimentos controlados, pero no cambia el baseline ni habilita la ruta normal de pruebas.
+
+**Motivo:** faster-whisper estable aún no declara soporte integrado para Python 3.14; fijar 3.11 evita que el MVP dependa de un minor no validado solo por aparecer primero en `PATH`.
