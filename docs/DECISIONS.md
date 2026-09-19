@@ -1,0 +1,98 @@
+# Decisiones técnicas
+
+Este documento registra decisiones que condicionan el proyecto. Cambiar una decisión aceptada requiere añadir una nueva entrada que la sustituya; no borrar el historial.
+
+## D-001 — Windows 11 nativo
+
+**Estado:** Aceptada
+
+El entorno objetivo es Windows 11 nativo con PowerShell.
+
+WSL y Docker quedan fuera del flujo soportado inicial.
+
+**Motivo:** el proyecto debe ejecutarse directamente en el mismo entorno donde Codex y el usuario operarán los archivos locales.
+
+## D-002 — Procesamiento local y gratuito
+
+**Estado:** Aceptada
+
+La transcripción normal no utilizará APIs cloud.
+
+**Motivo:** privacidad de llamadas, ausencia de cuota por minuto y requisito de coste recurrente cero.
+
+## D-003 — faster-whisper como primer motor
+
+**Estado:** Aceptada
+
+El primer adaptador será `faster-whisper`, manteniéndolo detrás de una interfaz de engine.
+
+**Motivo:** buen rendimiento local, CTranslate2, soporte CPU/GPU y uso de PyAV.
+
+## D-004 — CPU obligatoria; CUDA opcional
+
+**Estado:** Aceptada
+
+La aplicación debe funcionar en CPU. CUDA será aceleración opcional.
+
+`auto` deberá poder degradar a CPU ante un fallo GPU.
+
+**Motivo:** evitar que una instalación o actualización CUDA deje inutilizable la herramienta.
+
+## D-005 — Sin FFmpeg externo para el pipeline básico
+
+**Estado:** Aceptada
+
+La transcripción MP4 utilizará la decodificación disponible mediante PyAV/faster-whisper.
+
+**Motivo:** reducir dependencias globales en Windows.
+
+Una función futura puede requerir FFmpeg, pero deberá aprobarse explícitamente.
+
+## D-006 — Dos perfiles iniciales de modelo
+
+**Estado:** Aceptada
+
+- calidad: `large-v3`;
+- rápido: `large-v3-turbo`.
+
+El default se escogerá mediante benchmark local, no por intuición.
+
+## D-007 — TOML para configuración
+
+**Estado:** Aceptada
+
+La configuración persistente utilizará TOML.
+
+**Motivo:** formato legible, simple y adecuado para configuración estructurada.
+
+## D-008 — GitHub como fuente de verdad
+
+**Estado:** Aceptada
+
+Las instrucciones relevantes deben persistirse en el repositorio. Los prompts a Codex deben ser mínimos y referenciar la documentación versionada.
+
+**Motivo:** permitir que usuario, Codex y revisores trabajen sobre el mismo contrato verificable y no dependan del contexto de un chat.
+
+## D-009 — Diarización fuera del MVP
+
+**Estado:** Aceptada
+
+La separación automática de hablantes no se implementará dentro del MVP de faster-whisper.
+
+**Motivo:** mantener la primera versión enfocada y no introducir todavía pyannote/WhisperX y sus dependencias adicionales.
+
+## D-010 — Preflight antes de cambios CUDA
+
+**Estado:** Aceptada
+
+No se instalarán ni modificarán CUDA, cuDNN o PATH global antes de completar el preflight.
+
+**Motivo:** primero debe conocerse el hardware y el estado real de las dependencias para evitar combinaciones incompatibles.
+
+## D-011 — Versiones validadas antes de fijar GPU
+
+**Estado:** Aceptada
+
+`faster-whisper 1.2.1` es el candidato inicial de investigación, pero la combinación definitiva de faster-whisper, CTranslate2, CUDA y cuDNN se fijará únicamente después de pruebas reales en Windows.
+
+**Motivo:** las compatibilidades GPU dependen de versiones concretas y deben demostrarse en el equipo objetivo.
