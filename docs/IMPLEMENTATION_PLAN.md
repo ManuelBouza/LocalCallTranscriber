@@ -29,7 +29,7 @@ Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o J
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: crear el entorno Python local y el conjunto mínimo de herramientas del proyecto.
 
