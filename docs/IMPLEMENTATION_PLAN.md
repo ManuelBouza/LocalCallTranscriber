@@ -10,7 +10,7 @@ Estados permitidos:
 
 ## Fase 0 — Preflight del equipo
 
-**Estado: DONE**
+**Estado: NEXT**
 
 Objetivo: conocer el estado real del equipo sin modificarlo.
 
@@ -25,7 +25,9 @@ Entregables previstos:
 
 Restricción: esta fase no instalará faster-whisper, CUDA, cuDNN ni modificará PATH global.
 
-Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o JSON, y `tests/test_doctor.ps1` valida automáticamente su estructura y estados.
+Implementación inicial publicada en `ef8c44421a3bbadd9faeb3c61115a72fe705a171`.
+
+Auditoría pendiente: resolver [issue #1](https://github.com/ManuelBouza/LocalCallTranscriber/issues/1) para completar la detección de CTranslate2 y de runtimes CUDA/cuBLAS/cuDNN antes de volver a marcar esta fase como `DONE`.
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
