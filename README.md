@@ -41,3 +41,27 @@ docs/          # Especificaciones versionadas
 ```
 
 No se versionan modelos, archivos multimedia, entornos virtuales ni resultados de transcripción.
+
+## Preflight del equipo
+
+La fase inicial incluye un diagnóstico de solo lectura. No instala paquetes, no modifica `PATH` y no requiere privilegios administrativos para sus comprobaciones habituales.
+
+Ejecuta desde PowerShell, en la raíz del repositorio:
+
+```powershell
+.\scripts\doctor.ps1
+```
+
+Para una salida estructurada destinada a automatización o validación:
+
+```powershell
+.\scripts\doctor.ps1 -AsJson
+```
+
+La salida informa Windows, PowerShell, instalaciones de Python detectables, GPU NVIDIA/driver/VRAM cuando `nvidia-smi` está disponible, CUDA, cuDNN, CTranslate2 y espacio libre. Cada comprobación usa `PASS`, `WARN`, `FAIL` o `NOT_FOUND`.
+
+La validación automatizada de la estructura del informe se ejecuta con:
+
+```powershell
+.\tests\test_doctor.ps1
+```

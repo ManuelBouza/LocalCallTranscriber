@@ -96,3 +96,11 @@ No se instalarán ni modificarán CUDA, cuDNN o PATH global antes de completar e
 `faster-whisper 1.2.1` es el candidato inicial de investigación, pero la combinación definitiva de faster-whisper, CTranslate2, CUDA y cuDNN se fijará únicamente después de pruebas reales en Windows.
 
 **Motivo:** las compatibilidades GPU dependen de versiones concretas y deben demostrarse en el equipo objetivo.
+
+## D-012 — Preflight de solo lectura en PowerShell
+
+**Estado:** Aceptada
+
+El preflight se implementa como `scripts/doctor.ps1`. Consulta el estado del equipo y puede emitir un informe JSON, pero no instala software ni modifica `PATH` u otra configuración del sistema.
+
+**Motivo:** disponer de evidencia reproducible del entorno antes de elegir o modificar la ruta CUDA, conservando un flujo seguro en CPU.

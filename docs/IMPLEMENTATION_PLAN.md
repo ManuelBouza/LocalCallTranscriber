@@ -10,7 +10,7 @@ Estados permitidos:
 
 ## Fase 0 — Preflight del equipo
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: conocer el estado real del equipo sin modificarlo.
 
@@ -24,6 +24,8 @@ Entregables previstos:
 - recomendaciones basadas en hechos detectados.
 
 Restricción: esta fase no instalará faster-whisper, CUDA, cuDNN ni modificará PATH global.
+
+Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o JSON, y `tests/test_doctor.ps1` valida automáticamente su estructura y estados.
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
