@@ -7,7 +7,7 @@ name = "local-call-transcriber"
 version = "0.1.0"
 description = "Aplicación local para Windows de transcripción de llamadas"
 readme = "README.md"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.11"
 license = { file = "LICENSE" }
 
 [tool.setuptools.packages.find]

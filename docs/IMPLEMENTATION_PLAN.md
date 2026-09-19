@@ -29,7 +29,7 @@ Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o J
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: crear el entorno Python local y el conjunto mínimo de herramientas del proyecto.
 
@@ -43,9 +43,7 @@ Entregables previstos:
 
 No incluirá todavía cambios globales de CUDA/cuDNN.
 
-Implementación corregida publicada en `1e9166c6f78a6fff7697382ac741a9f3cc73bdb6`.
-
-Auditoría pendiente: resolver [issue #3](https://github.com/ManuelBouza/LocalCallTranscriber/issues/3) para hacer coherente la ruta experimental `-PythonExecutable` con la metadata del paquete antes de comenzar la Fase 2.
+Completado: la ruta normal permanece fijada a CPython 3.11.x. La metadata acepta Python 3.11+ para que `-PythonExecutable` pueda instalar entornos experimentales de minors posteriores, que quedan advertidos como no soportados y no pueden ejecutar la ruta normal de `scripts/test.ps1`.
 
 ## Fase 2 — Transcripción CPU baseline
 

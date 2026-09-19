@@ -125,6 +125,6 @@ El entorno de desarrollo se crea en `.venv` mediante `scripts/bootstrap.ps1`. `r
 
 **Estado:** Aceptada
 
-La ruta normal de bootstrap y pruebas usa CPython 3.11.x, seleccionado explícitamente mediante el launcher `py`. Una `.venv` de otro minor no se reutiliza silenciosamente. `-PythonExecutable` permite experimentos controlados, pero no cambia el baseline ni habilita la ruta normal de pruebas.
+La ruta normal de bootstrap y pruebas usa CPython 3.11.x, seleccionado explícitamente mediante el launcher `py`. Una `.venv` de otro minor no se reutiliza silenciosamente. La metadata del paquete conserva el mínimo `>=3.11` para que `-PythonExecutable` pueda crear e instalar entornos experimentales de minors posteriores, pero no cambia el baseline ni habilita la ruta normal de pruebas.
 
 **Motivo:** faster-whisper estable aún no declara soporte integrado para Python 3.14; fijar 3.11 evita que el MVP dependa de un minor no validado solo por aparecer primero en `PATH`.

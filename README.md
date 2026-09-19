@@ -80,7 +80,7 @@ py install 3.11
 .\scripts\bootstrap.ps1
 ```
 
-Para un experimento controlado puede usarse un intérprete concreto compatible. El script lo advierte cuando no sea 3.11 y `scripts/test.ps1` no permitirá utilizarlo como ruta normal:
+Para un experimento controlado puede usarse un intérprete concreto compatible (3.12 o posterior). El bootstrap puede crear e instalar el paquete en ese entorno, pero lo marca como no validado; `scripts/test.ps1` no permitirá utilizarlo como ruta normal:
 
 ```powershell
 .\scripts\bootstrap.ps1 -PythonExecutable 'C:\Ruta\A\python.exe'

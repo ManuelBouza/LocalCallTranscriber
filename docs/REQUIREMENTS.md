@@ -71,7 +71,7 @@ Bootstrap, diagnóstico y automatización de sistema deben estar disponibles med
 ### NFR-003 — Python
 El proyecto requiere Python 3.11 o superior y debe ejecutarse dentro de `.venv`.
 
-El baseline validado del MVP es CPython 3.11.x. Las versiones menores posteriores solo podrán evaluarse como experimentos controlados hasta que el stack de transcripción esté validado explícitamente en ellas.
+El baseline validado y soportado del MVP es CPython 3.11.x. Las versiones menores posteriores cumplen el mínimo de metadata y pueden evaluarse únicamente como experimentos controlados; no habilitan la ruta normal de pruebas ni quedan soportadas hasta que el stack de transcripción esté validado explícitamente en ellas.
 
 ### NFR-004 — CPU obligatoria
 La aplicación debe funcionar sin GPU NVIDIA.
