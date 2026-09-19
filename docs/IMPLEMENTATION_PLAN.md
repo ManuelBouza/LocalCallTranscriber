@@ -47,7 +47,7 @@ Completado: la ruta normal permanece fijada a CPython 3.11.x. La metadata acepta
 
 ## Fase 2 — Transcripción CPU baseline
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: transcribir un MP4 completamente en CPU.
 
