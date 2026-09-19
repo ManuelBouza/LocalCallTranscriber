@@ -29,7 +29,7 @@ Completado: `scripts/doctor.ps1` produce un informe de solo lectura, legible o J
 
 ## Fase 1 — Bootstrap reproducible de desarrollo
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: crear el entorno Python local y el conjunto mínimo de herramientas del proyecto.
 
@@ -42,6 +42,8 @@ Entregables previstos:
 - estrategia de bloqueo/pinning documentada.
 
 No incluirá todavía cambios globales de CUDA/cuDNN.
+
+Completado: `scripts/bootstrap.ps1` crea o reutiliza `.venv` de forma segura, valida Python 3.11+ e instala herramientas de desarrollo fijadas dentro del entorno. `scripts/test.ps1` ejecuta pytest, Ruff, el smoke test del paquete y la validación del preflight sin requerir GPU.
 
 ## Fase 2 — Transcripción CPU baseline
 

@@ -1,0 +1,10 @@
+# Lock de dependencias de desarrollo para un bootstrap reproducible.
+# Actualizar de forma deliberada y validar con scripts/test.ps1.
+colorama==0.4.6
+iniconfig==2.3.0
+packaging==26.3
+pluggy==1.6.0
+pygments==2.21.0
+setuptools==80.9.0
+pytest==8.4.2
+ruff==0.12.12

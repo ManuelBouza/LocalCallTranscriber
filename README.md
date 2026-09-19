@@ -65,3 +65,25 @@ La validación automatizada de la estructura del informe se ejecuta con:
 ```powershell
 .\tests\test_doctor.ps1
 ```
+
+## Bootstrap de desarrollo
+
+La fase de bootstrap crea o reutiliza `.venv` con Python 3.11 o superior. Todas las herramientas de desarrollo se instalan únicamente dentro de ese entorno; no se modifica Python global, `PATH`, CUDA ni cuDNN.
+
+```powershell
+.\scripts\bootstrap.ps1
+```
+
+Para usar un intérprete concreto compatible:
+
+```powershell
+.\scripts\bootstrap.ps1 -PythonExecutable 'C:\Ruta\A\python.exe'
+```
+
+Ejecuta la suite completa —pruebas, lint, smoke test y la validación del preflight— con:
+
+```powershell
+.\scripts\test.ps1
+```
+
+`requirements-dev.txt` es el lock de desarrollo: fija las dependencias directas y transitivas de las pruebas, lint y build local. Sus actualizaciones deben ser deliberadas y validarse con `./scripts/test.ps1`. Esta fase fija solo las dependencias de desarrollo; las dependencias del motor de transcripción se incorporarán y validarán en su fase correspondiente antes de fijarse.

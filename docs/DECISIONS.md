@@ -112,3 +112,11 @@ El preflight se implementa como `scripts/doctor.ps1`. Consulta el estado del equ
 El preflight informa por separado el toolkit CUDA (`nvcc`) y las bibliotecas de runtime requeridas habitualmente por CTranslate2 (`cudart`, cuBLAS y cuDNN). También comprueba CTranslate2 en cada intérprete detectado por el launcher de Python o el `PATH`.
 
 **Motivo:** un toolkit no prueba que el runtime sea utilizable, y CTranslate2 puede estar instalado fuera del intérprete Python prioritario del proceso.
+
+## D-014 — Bootstrap local con herramientas de desarrollo fijadas
+
+**Estado:** Aceptada
+
+El entorno de desarrollo se crea en `.venv` mediante `scripts/bootstrap.ps1`. `requirements-dev.txt` fija las dependencias directas y transitivas de desarrollo, incluidas setuptools, pytest y Ruff; el paquete se instala en modo editable sin instalar motores de transcripción todavía. Cualquier actualización del lock requiere una ejecución verde de `scripts/test.ps1`.
+
+**Motivo:** obtener un ciclo de pruebas reproducible sin modificar Python global ni fijar prematuramente dependencias de CPU/GPU que requieren validación posterior.
