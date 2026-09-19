@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# IDEs and local settings
+.vscode/
+.idea/
+*.code-workspace
+.env
+.env.*
+
+# Transcription models and local caches
+models/
+model-cache/
+cache/
+*.bin
+*.gguf
+*.safetensors
+*.onnx
+
+# Source media and generated transcription results
+media/
+recordings/
+input/
+output/
+transcripts/
+*.mp4
+*.m4a
+*.mp3
+*.wav
+*.flac
+*.avi
+*.mov
+*.mkv
+*.srt
+*.vtt
