@@ -33,6 +33,8 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--windows-console-mode=disable" in extra_args
     assert "--include-package=local_call_transcriber" in extra_args
     assert "--include-module=av.utils" in extra_args
+    assert "--include-module=av.sidedata.encparams" in extra_args
+    assert "--include-module=av.sidedata.motionvectors" in extra_args
     assert "--include-package=faster_whisper" in extra_args
     assert "--include-package=ctranslate2" in extra_args
 
