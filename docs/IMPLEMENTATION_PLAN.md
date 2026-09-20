@@ -101,7 +101,7 @@ Completado: la CLI admite `--device cpu|cuda|auto`. `auto` intenta CUDA y vuelve
 
 ## Fase 5 — Benchmark y defaults
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: escoger defaults por evidencia sobre el equipo real.
 
@@ -124,7 +124,7 @@ Resultado: documentar los defaults elegidos. No convertir una diferencia margina
 
 Implementación inicial publicada en `126d519c354e6bbc70a0dae3b37ad07262248b3e`.
 
-Auditoría pendiente: resolver [issue #4](https://github.com/ManuelBouza/LocalCallTranscriber/issues/4) para medir el mismo pipeline usado por la CLI y validar los defaults con una muestra local de voz antes de cerrar la fase.
+Completado tras la auditoría #4: `scripts/benchmark.ps1` genera una muestra de voz local temporal y `scripts/benchmark.py` mide la misma CLI y serialización de producción. En la muestra de 5.731 s, `large-v3-turbo` CUDA `float16` obtuvo RTF 0.807; `large-v3` obtuvo mayor coincidencia cualitativa con la referencia local. Se mantiene `large-v3-turbo` como perfil rápido por rendimiento, sin declarar un ganador universal de calidad.
 
 ## Fase 6 — Procesamiento por carpeta
 

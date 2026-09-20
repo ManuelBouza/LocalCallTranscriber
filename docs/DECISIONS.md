@@ -157,8 +157,8 @@ La ruta GPU usa CUDA Toolkit 12.6, cuDNN 9.11.0.98 para CUDA 12, faster-whisper 
 
 **Estado:** Aceptada
 
-El default es `large-v3-turbo`, `device=auto` y `compute_type=auto` (CUDA `float16` cuando está disponible; CPU `int8` como fallback). El benchmark reproducible de Fase 5 usó una fixture MP4 de silencio local de 1.088 s y comparó ambos modelos, CPU `int8`, GPU `float16`/`int8_float16` y batches 1/4. En la RTX 2060, el mejor RTF de batch 1 fue `large-v3-turbo` CUDA `float16`: 0.284; `large-v3` GPU fue 0.311 como mínimo y CPU fue 9.743–11.457.
+El default es `large-v3-turbo`, `device=auto` y `compute_type=auto` (CUDA `float16` cuando está disponible; CPU `int8` como fallback). Tras la auditoría #4, el benchmark ejecuta la misma CLI, engine, VAD y serialización que producción sobre una muestra de voz local temporal de 5.731 s, con referencia conocida. En la RTX 2060, `large-v3-turbo` CUDA `float16` obtuvo RTF 0.807; `large-v3` CUDA `float16` obtuvo 1.786. La coincidencia de tokens con la referencia local fue 0.800 y 0.867 respectivamente.
 
-La fixture no mide calidad lingüística: verifica correctamente ausencia de habla (0 segmentos). Por ello esta decisión es de rendimiento y capacidad; deberá reevaluarse con un conjunto de llamadas controlado antes de afirmar una diferencia de calidad entre modelos.
+Estos resultados son una observación controlada y cualitativa, no una afirmación universal de calidad. `large-v3-turbo` se elige como perfil rápido por rendimiento; `large-v3` permanece disponible como perfil de calidad.
 
 **Motivo:** `large-v3-turbo` reduce el tiempo de proceso y carga manteniendo el perfil rápido previsto. El fallback CPU conserva la disponibilidad sin CUDA.

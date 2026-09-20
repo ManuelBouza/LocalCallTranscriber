@@ -124,10 +124,14 @@ La combinación validada en este equipo es CUDA Toolkit 12.6, cuDNN 9.11.0.98 pa
 
 ## Benchmark reproducible
 
-La Fase 5 añade un benchmark local que genera una fixture MP4 temporal y guarda el JSON fuera de Git en `%LOCALAPPDATA%\LocalCallTranscriber\benchmarks`:
+La Fase 5 añade un benchmark local que genera voz mediante el sintetizador de Windows, la convierte temporalmente a MP4 y mide la misma CLI de producción. El JSON queda fuera de Git en `%LOCALAPPDATA%\LocalCallTranscriber\benchmarks`:
 
 ```powershell
 .\scripts\benchmark.ps1
 ```
 
-Compara `large-v3` y `large-v3-turbo` en CPU `int8` y GPU `float16`/`int8_float16`, con batches 1 y 4. Registra duración, carga, transcripción, RTF, RAM/VRAM cuando el controlador los expone y la observación de calidad de la fixture controlada.
+Compara `large-v3` y `large-v3-turbo` en CPU `int8` y GPU `float16`/`int8_float16`. Registra duración, tiempo total, RTF, segmentos y una comparación cualitativa con la referencia local. Para incluir MP4 locales propios sin copiarlos ni versionarlos:
+
+```powershell
+.\scripts\benchmark.ps1 -InputMp4 'D:\Llamadas\muestra-controlada.mp4'
+```

@@ -1,18 +1,5 @@
 [CmdletBinding()]
-param(
-    [string]$Output = (Join-Path $env:LOCALAPPDATA 'LocalCallTranscriber\benchmarks\phase-5.json')
-)
-
-$ErrorActionPreference = 'Stop'
-$repositoryRoot = Split-Path -Parent $PSScriptRoot
-$python = Join-Path $repositoryRoot '.venv\Scripts\python.exe'
-$cache = Join-Path $env:LOCALAPPDATA 'LocalCallTranscriber\models'
-
-if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
-    throw 'No se encontró .venv. Ejecuta .\scripts\bootstrap.ps1 antes del benchmark.'
-}
-
-& $python (Join-Path $PSScriptRoot 'benchmark.py') --output $Output --model-cache $cache
-if ($LASTEXITCODE -ne 0) {
-    throw "El benchmark falló con código $LASTEXITCODE."
-}
+param([string[]]$InputMp4=@(),[string]$Output=(Join-Path $env:LOCALAPPDATA 'LocalCallTranscriber\benchmarks\phase-5-production.json'))
+$ErrorActionPreference='Stop'; $root=Split-Path -Parent $PSScriptRoot; $python=Join-Path $root '.venv\Scripts\python.exe'; $cache=Join-Path $env:LOCALAPPDATA 'LocalCallTranscriber\models'; $reference='hola esta es una prueba local de transcripcion para validar el modelo rapido y el modelo de calidad'
+$tmp=Join-Path ([IO.Path]::GetTempPath()) ('lct-speech-'+[guid]::NewGuid()); New-Item -ItemType Directory -Path $tmp | Out-Null
+try { $wav=Join-Path $tmp 'controlled-speech.wav'; Add-Type -AssemblyName System.Speech; $s=[System.Speech.Synthesis.SpeechSynthesizer]::new(); $s.SetOutputToWaveFile($wav); $s.Speak($reference); $s.Dispose(); $args=@((Join-Path $PSScriptRoot 'benchmark.py'),'--output',$Output,'--model-cache',$cache,'--controlled-speech-wav',$wav,'--reference-text',$reference); foreach($i in $InputMp4){$args+=@('--input',$i)}; & $python @args; if($LASTEXITCODE -ne 0){throw "Benchmark failed: $LASTEXITCODE"} } finally { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue }
