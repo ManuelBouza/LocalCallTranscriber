@@ -215,8 +215,16 @@ subprocess. Instálala sólo si la necesitas:
 También queda disponible el ejecutable `local-call-transcriber-gui.exe` dentro
 de `.venv\Scripts` tras el bootstrap. Permite seleccionar un MP4 o una carpeta,
 la salida, perfil, idioma, hardware, VAD, timestamps por palabra y overwrite.
-La ejecución es síncrona en esta primera ventana; progreso, cancelación y
-ejecución en segundo plano son trabajo explícitamente reservado para la Fase 11.
+
+La transcripción se ejecuta fuera del hilo de eventos Qt para mantener la ventana
+responsiva. En carpetas se muestra progreso global por archivos y el archivo
+actual; durante un MP4 individual la barra permanece indeterminada porque el
+engine no expone un porcentaje interno fiable. El panel de diagnóstico registra
+inicio, archivo actual, resultado y errores.
+
+`Cancelar después del actual` es cooperativo: nunca interrumpe una inferencia a
+mitad. El archivo en curso termina y, en un lote, no se inicia el siguiente.
+`Abrir resultados` abre el directorio de salida con Windows.
 
 El CLI no importa ni requiere PySide6 y continúa siendo la interfaz recomendada
 para scripts y agentes.
