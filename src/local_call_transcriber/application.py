@@ -1,7 +1,7 @@
 """Capa de aplicación compartida por las interfaces de usuario.
 
-El CLI y una futura GUI construyen :class:`TranscriptionRequest` y delegan aquí;
-esta capa no conoce argumentos de terminal ni bibliotecas de interfaz gráfica.
+El CLI y la GUI construyen :class:`TranscriptionRequest` y delegan aquí; esta capa
+no conoce argumentos de terminal ni bibliotecas de interfaz gráfica.
 """
 
 import os
@@ -11,7 +11,15 @@ from typing import Callable
 
 from local_call_transcriber.engines.base import TranscriptionEngine
 from local_call_transcriber.engines.faster_whisper import FasterWhisperEngine
-from local_call_transcriber.orchestration import FolderItemResult, OutputPaths, transcribe_file, transcribe_folder
+from local_call_transcriber.orchestration import (
+    CancellationCheck,
+    FolderItemFinished,
+    FolderItemResult,
+    FolderItemStarted,
+    OutputPaths,
+    transcribe_file,
+    transcribe_folder,
+)
 
 
 @dataclass(frozen=True)
@@ -38,6 +46,7 @@ class FileTranscriptionRun:
 @dataclass(frozen=True)
 class FolderTranscriptionRun:
     results: tuple[FolderItemResult, ...]
+    cancelled: bool = False
 
 
 TranscriptionRun = FileTranscriptionRun | FolderTranscriptionRun
@@ -68,22 +77,19 @@ class TranscriptionApplication:
     def __init__(self, engine_factory: EngineFactory = create_engine) -> None:
         self._engine_factory = engine_factory
 
-    def run(self, request: TranscriptionRequest) -> TranscriptionRun:
+    def run(
+        self,
+        request: TranscriptionRequest,
+        *,
+        on_item_started: FolderItemStarted | None = None,
+        on_item_finished: FolderItemFinished | None = None,
+        should_cancel: CancellationCheck | None = None,
+    ) -> TranscriptionRun:
         engine = self._engine_factory(request)
+
         if request.input_path.is_dir():
-            return FolderTranscriptionRun(
-                transcribe_folder(
-                    engine,
-                    request.input_path,
-                    request.output_dir,
-                    request.language,
-                    request.vad,
-                    request.word_timestamps,
-                    request.overwrite,
-                )
-            )
-        return FileTranscriptionRun(
-            transcribe_file(
+            total = sum(1 for _ in request.input_path.glob("*.mp4"))
+            results = transcribe_folder(
                 engine,
                 request.input_path,
                 request.output_dir,
@@ -91,5 +97,39 @@ class TranscriptionApplication:
                 request.vad,
                 request.word_timestamps,
                 request.overwrite,
+                on_item_started=on_item_started,
+                on_item_finished=on_item_finished,
+                should_cancel=should_cancel,
             )
+            cancelled = (
+                should_cancel is not None
+                and should_cancel()
+                and len(results) < total
+            )
+            return FolderTranscriptionRun(results=results, cancelled=cancelled)
+
+        if on_item_started is not None:
+            on_item_started(request.input_path, 1, 1)
+
+        outputs = transcribe_file(
+            engine,
+            request.input_path,
+            request.output_dir,
+            request.language,
+            request.vad,
+            request.word_timestamps,
+            request.overwrite,
         )
+
+        if on_item_finished is not None:
+            on_item_finished(
+                FolderItemResult(
+                    request.input_path,
+                    "success",
+                    "Salidas generadas.",
+                ),
+                1,
+                1,
+            )
+
+        return FileTranscriptionRun(outputs)
