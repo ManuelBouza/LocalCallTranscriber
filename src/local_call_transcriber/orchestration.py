@@ -1,8 +1,9 @@
-"""Coordinación del flujo de transcripción para un archivo."""
+"""Coordinación del flujo de transcripción para un archivo o carpeta."""
 
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from local_call_transcriber.engines.base import TranscriptionEngine
 from local_call_transcriber.domain import TranscriptResult
@@ -26,6 +27,11 @@ class FolderItemResult:
     source: Path
     status: str
     detail: str
+
+
+FolderItemStarted = Callable[[Path, int, int], None]
+FolderItemFinished = Callable[[FolderItemResult, int, int], None]
+CancellationCheck = Callable[[], bool]
 
 
 def validate_mp4(media_path: Path) -> None:
@@ -52,14 +58,21 @@ def transcribe_file(
         srt=output_dir / f"{media_path.stem}.srt",
         vtt=output_dir / f"{media_path.stem}.vtt",
     )
-    existing = [path for path in (outputs.txt, outputs.json, outputs.srt, outputs.vtt) if path.exists()]
+    existing = [
+        path
+        for path in (outputs.txt, outputs.json, outputs.srt, outputs.vtt)
+        if path.exists()
+    ]
     if existing and not overwrite:
         raise InputValidationError(
             "Ya existen salidas para esta llamada. Usa --overwrite para sustituirlas: "
             + ", ".join(str(path) for path in existing)
         )
     result = engine.transcribe(
-        media_path=media_path, language=language, vad=vad, word_timestamps=word_timestamps
+        media_path=media_path,
+        language=language,
+        vad=vad,
+        word_timestamps=word_timestamps,
     )
     ordered_result = TranscriptResult(
         model=result.model,
@@ -81,21 +94,50 @@ def transcribe_folder(
     vad: bool,
     word_timestamps: bool,
     overwrite: bool,
+    *,
+    on_item_started: FolderItemStarted | None = None,
+    on_item_finished: FolderItemFinished | None = None,
+    should_cancel: CancellationCheck | None = None,
 ) -> tuple[FolderItemResult, ...]:
+    """Procesa una carpeta y permite observar/cancelar de forma cooperativa entre archivos."""
     if not input_dir.is_dir():
         raise InputValidationError(f"No existe el directorio de entrada: {input_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    results = []
+    media_paths = tuple(sorted(input_dir.glob("*.mp4")))
+    total = len(media_paths)
+    results: list[FolderItemResult] = []
     log_path = output_dir / "folder-run.jsonl"
-    for media_path in sorted(input_dir.glob("*.mp4")):
+
+    for index, media_path in enumerate(media_paths, start=1):
+        if should_cancel is not None and should_cancel():
+            break
+        if on_item_started is not None:
+            on_item_started(media_path, index, total)
         try:
-            transcribe_file(engine, media_path, output_dir, language, vad, word_timestamps, overwrite)
+            transcribe_file(
+                engine,
+                media_path,
+                output_dir,
+                language,
+                vad,
+                word_timestamps,
+                overwrite,
+            )
             item = FolderItemResult(media_path, "success", "Salidas generadas.")
         except InputValidationError as error:
             item = FolderItemResult(media_path, "skipped", str(error))
         except RuntimeError as error:
             item = FolderItemResult(media_path, "error", str(error))
+
         results.append(item)
         with log_path.open("a", encoding="utf-8") as log_file:
-            log_file.write(json.dumps({"file": media_path.name, "status": item.status, "detail": item.detail}, ensure_ascii=False) + "\n")
+            payload = {
+                "file": media_path.name,
+                "status": item.status,
+                "detail": item.detail,
+            }
+            log_file.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        if on_item_finished is not None:
+            on_item_finished(item, index, total)
+
     return tuple(results)
