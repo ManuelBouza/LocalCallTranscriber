@@ -101,7 +101,7 @@ Completado: la CLI admite `--device cpu|cuda|auto`. `auto` intenta CUDA y vuelve
 
 ## Fase 5 — Benchmark y defaults
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: escoger defaults por evidencia sobre el equipo real.
 
