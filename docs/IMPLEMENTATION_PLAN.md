@@ -252,6 +252,11 @@ Entregables:
 
 No inventar porcentaje interno de inferencia mientras el engine no exponga progreso real.
 
+Implementación inicial de ChatGPT publicada: worker Qt, progreso por archivo,
+cancelación cooperativa, panel de diagnóstico y apertura de resultados. La fase
+permanece `NEXT` hasta completar la validación local definida en
+`docs/PHASE11_VALIDATION.md` y la auditoría posterior de ChatGPT.
+
 ## Fase 12 — Release v0.2.0
 
 **Estado: PENDING**
