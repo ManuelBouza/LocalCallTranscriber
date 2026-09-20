@@ -47,6 +47,7 @@ class FileTranscriptionRun:
 class FolderTranscriptionRun:
     results: tuple[FolderItemResult, ...]
     cancelled: bool = False
+    total: int = 0
 
 
 TranscriptionRun = FileTranscriptionRun | FolderTranscriptionRun
@@ -106,7 +107,11 @@ class TranscriptionApplication:
                 and should_cancel()
                 and len(results) < total
             )
-            return FolderTranscriptionRun(results=results, cancelled=cancelled)
+            return FolderTranscriptionRun(
+                results=results,
+                cancelled=cancelled,
+                total=total,
+            )
 
         if on_item_started is not None:
             on_item_started(request.input_path, 1, 1)
