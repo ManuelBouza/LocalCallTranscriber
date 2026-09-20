@@ -38,6 +38,6 @@ def test_packaged_entrypoint_keeps_release_smoke_available() -> None:
 
     assert '"--package-smoke"' in entrypoint
     assert "'--package-smoke'" in package_script
-    assert "model="tiny"" in entrypoint
+    assert 'model="tiny"' in entrypoint
     assert 'device="cpu"' in entrypoint
     assert 'compute_type="int8"' in entrypoint
