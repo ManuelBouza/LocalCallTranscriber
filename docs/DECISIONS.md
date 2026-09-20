@@ -170,3 +170,11 @@ Estos resultados son una observación controlada y cualitativa, no una afirmaci�
 El modo carpeta procesa sólo `*.mp4` del directorio indicado. Un archivo con salidas existentes se omite salvo `--overwrite`; los errores no interrumpen el resto. Cada ejecución deja un registro JSONL y un resumen.
 
 **Motivo:** permite repetir el proceso sin destruir resultados ni reprocesar llamadas ya terminadas.
+
+## D-021 — Windows Task Scheduler para automatización inicial
+
+**Estado:** Aceptada
+
+Se evalúan dos opciones: un watcher persistente reaccionaría antes a archivos nuevos, pero requiere un proceso residente y gestión adicional de archivos todavía en copia. Windows Task Scheduler ejecuta periódicamente la CLI de carpeta ya validada, no requiere un servicio y deja logs por ejecución. Se adopta una tarea diaria configurable.
+
+**Motivo:** es la opción más simple y recuperable para el MVP; las salidas existentes impiden reprocesos accidentales entre ejecuciones.

@@ -144,7 +144,7 @@ Completado: la CLI acepta un directorio de MP4 no recursivo, continúa tras fall
 
 ## Fase 7 — Automatización recurrente
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: eliminar la ejecución manual cuando el flujo base sea estable.
 
@@ -153,6 +153,8 @@ Evaluar:
 - watcher persistente.
 
 Se elegirá una sola opción inicial mediante una decisión documentada. No se implementará como Windows Service en el MVP.
+
+Completado: se eligió Windows Task Scheduler frente a watcher persistente (D-021). Los scripts PowerShell crean/eliminan la tarea diaria y el runner invoca la misma CLI de carpeta, dejando `automation.log` y `folder-run.jsonl` para diagnóstico.
 
 ## Fase 8 — Release MVP
 

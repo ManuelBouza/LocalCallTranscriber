@@ -145,3 +145,23 @@ Pasa un directorio que contenga MP4 (sin recorrer subdirectorios). Cada archivo 
 ```
 
 Por seguridad, un MP4 con cualquiera de sus salidas existentes queda omitido. Usa `--overwrite` sólo para volver a procesar deliberadamente esos archivos.
+
+## Automatización diaria
+
+Se eligió Windows Task Scheduler, no un watcher persistente: no deja un proceso residente y reutiliza la misma CLI de carpeta. Crea una tarea diaria (por defecto, 02:00):
+
+```powershell
+.\scripts\register_folder_task.ps1 -InputDirectory 'D:\Llamadas\input' -OutputDirectory 'D:\Llamadas\output' -Time '02:00'
+```
+
+Prueba el pipeline sin programarlo ejecutando el runner directamente. `automation.log` y `folder-run.jsonl` quedan en la salida:
+
+```powershell
+.\scripts\run_folder_task.ps1 -InputDirectory 'D:\Llamadas\input' -OutputDirectory 'D:\Llamadas\output'
+```
+
+Para deshabilitarla, elimina la tarea:
+
+```powershell
+.\scripts\unregister_folder_task.ps1
+```
