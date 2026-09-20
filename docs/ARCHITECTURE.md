@@ -84,7 +84,7 @@ La estructura exacta puede evolucionar si mejora la cohesión, pero deben conser
 
 - `cli`: parsing y presentación CLI, sin lógica pesada; contrato permanente para humanos/scripts/agentes.
 - `application`: `TranscriptionRequest`, construcción de engine y servicio compartido por CLI y GUI. No depende de argumentos CLI ni de Qt.
-- `gui`: presentación Qt Widgets; traduce controles a `TranscriptionRequest` y llama a `TranscriptionApplication`. No contiene lógica de transcripción duplicada ni invoca el CLI. Los workers se incorporarán en Fase 11.
+- `gui`: presentación Qt Widgets; traduce controles a `TranscriptionRequest` y llama a `TranscriptionApplication`. `workers.py` ejecuta la operación mediante `QThreadPool`; no contiene lógica de transcripción duplicada ni invoca el CLI.
 - `config`: lectura/validación TOML y defaults.
 - `domain`: modelos de datos independientes del motor.
 - `hardware`: detección de CPU/CUDA y compute types.
@@ -198,3 +198,25 @@ Task Scheduler o un watcher persistente solo se evaluarán después de que el mo
 - CTranslate2: https://opennmt.net/CTranslate2/
 - CUDA para Windows: https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/
 - cuDNN para Windows: https://docs.nvidia.com/deeplearning/cudnn/installation/latest/windows.html
+
+
+## Ejecución GUI en background
+
+La GUI utiliza `QThreadPool`/`QRunnable` para mantener la inferencia fuera del
+hilo de eventos Qt. El worker comunica estado mediante señales y llama
+directamente a `TranscriptionApplication`.
+
+La capa core expone callbacks neutrales de inicio/fin de archivo y una consulta
+de cancelación. No dependen de Qt y el CLI puede ignorarlos.
+
+La cancelación es cooperativa entre archivos:
+
+```text
+archivo actual -> termina -> escribe outputs/log -> consulta cancelación
+                                             |
+                                             +--> cancelado: no inicia el siguiente
+```
+
+No se intenta abortar CTranslate2 a mitad de una inferencia. El progreso mostrado
+por la GUI es progreso real por número de archivos. Para un único MP4 se utiliza
+estado indeterminado hasta que el engine exponga progreso interno verificable.
