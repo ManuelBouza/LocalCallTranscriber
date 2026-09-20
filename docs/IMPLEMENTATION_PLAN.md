@@ -128,7 +128,7 @@ Completado tras la auditoría #4: `scripts/benchmark.ps1` genera una muestra de 
 
 ## Fase 6 — Procesamiento por carpeta
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: procesar de forma repetible múltiples llamadas.
 
