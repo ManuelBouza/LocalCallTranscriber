@@ -21,6 +21,8 @@ La extracción y transcripción del contenido deben ejecutarse localmente. Ning�
 ### FR-003 — CLI
 Debe existir una interfaz de línea de comandos utilizable desde PowerShell.
 
+El CLI es permanente y debe seguir disponible aunque exista una GUI. Debe poder ser utilizado directamente por humanos, scripts y agentes de IA. Su uso, opciones, salidas y códigos de salida deben estar documentados de forma suficiente para automatizar tareas como "extraer el texto de este MP4" sin depender de la GUI.
+
 ### FR-004 — Salidas
 Para una transcripción completa deben poder generarse:
 - TXT legible;
@@ -59,6 +61,23 @@ Tras validar la transcripción individual, debe poder procesarse una carpeta de 
 
 ### FR-012 — Registro
 Cada ejecución debe poder registrar modelo, dispositivo, compute type, idioma, duración y tiempo de procesamiento suficientes para diagnóstico y benchmark.
+
+### FR-013 — GUI desktop opcional
+La versión post-MVP incorporará una GUI desktop básica para operar archivos y carpetas, seleccionar perfil, idioma, hardware y opciones de transcripción, ejecutar trabajos y consultar estado/errores.
+
+La GUI es una capa de presentación. No sustituye el CLI y debe reutilizar la misma capa de aplicación y orchestration.
+
+### FR-014 — Contrato para agentes de IA
+Debe existir documentación específica para agentes de IA que defina al menos:
+- invocación del CLI;
+- rutas de entrada y salida;
+- forma de localizar el TXT producido;
+- códigos de salida;
+- comportamiento ante resultados existentes;
+- uso de archivo frente a carpeta;
+- reglas de privacidad y de `--overwrite`.
+
+La documentación normativa de este contrato es `docs/CLI_AGENT_USAGE.md`.
 
 ## Requisitos no funcionales
 
@@ -102,9 +121,15 @@ La lógica que no dependa físicamente de un modelo pesado o GPU debe disponer d
 ### NFR-010 — Observabilidad
 Los fallos de dependencias, modelo, archivos y aceleración deben producir mensajes accionables y códigos de salida adecuados.
 
-## Fuera del alcance del MVP
+### NFR-011 — Independencia CLI/GUI
+El CLI debe funcionar sin instalar ni importar dependencias exclusivas de GUI. Las dependencias de interfaz gráfica deben permanecer separadas del runtime core cuando sea razonable.
 
-- GUI.
+### NFR-012 — Automatización estable
+La evolución de la GUI no debe romper silenciosamente comandos CLI documentados. Los cambios incompatibles del contrato CLI requieren decisión explícita, documentación y estrategia de compatibilidad.
+
+## Fuera del alcance del MVP v0.1.0
+
+- GUI (incorporada posteriormente en el plan v0.2.0).
 - Servicios cloud de transcripción.
 - WSL.
 - Docker.
