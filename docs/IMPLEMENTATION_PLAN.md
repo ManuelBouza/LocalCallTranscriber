@@ -203,7 +203,7 @@ del TXT resultante.
 
 ## Fase 10 — GUI básica con PySide6
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: añadir una ventana desktop simple sobre el backend existente.
 
