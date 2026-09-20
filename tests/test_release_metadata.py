@@ -32,6 +32,7 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--noinclude-qt-translations=" not in extra_args
     assert "--windows-console-mode=disable" in extra_args
     assert "--include-package=local_call_transcriber" in extra_args
+    assert "--include-package=numpy" in extra_args
     assert "--include-module=av.utils" in extra_args
     assert "--include-module=av.sidedata.encparams" in extra_args
     assert "--include-module=av.sidedata.motionvectors" in extra_args
@@ -45,6 +46,8 @@ def test_packaged_entrypoint_keeps_release_smoke_available() -> None:
 
     assert '"--package-smoke"' in entrypoint
     assert "'--package-smoke'" in package_script
+    assert "Start-Process -FilePath $executable.FullName" in package_script
+    assert "-Wait -PassThru" in package_script
     assert 'model="tiny"' in entrypoint
     assert 'device="cpu"' in entrypoint
     assert 'compute_type="int8"' in entrypoint

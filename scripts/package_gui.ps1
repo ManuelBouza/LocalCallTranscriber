@@ -112,9 +112,11 @@ try {
     $executable = $executables[0]
 
     if (-not $SkipPackageSmoke) {
-        & $executable.FullName '--package-smoke'
-        if ($LASTEXITCODE -ne 0) {
-            throw "El smoke del ejecutable empaquetado falló con código $LASTEXITCODE."
+        # El ejecutable es una aplicación GUI sin consola: invocarlo con '&'
+        # no espera su finalización de forma fiable y puede ocultar un fallo.
+        $smokeProcess = Start-Process -FilePath $executable.FullName -ArgumentList '--package-smoke' -Wait -PassThru
+        if ($smokeProcess.ExitCode -ne 0) {
+            throw "El smoke del ejecutable empaquetado falló con código $($smokeProcess.ExitCode)."
         }
     }
 

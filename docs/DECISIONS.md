@@ -288,6 +288,12 @@ forma dinámica, por lo que el seguimiento estático de Nuitka no basta para el
 smoke ni para el arranque del ejecutable. Incluir sólo esos módulos evita un
 `AssertionError` interno de Nuitka 2.6.8 al incluir el paquete PyAV completo.
 
+Nuitka tampoco detecta todas las importaciones internas dinámicas de NumPy que
+usa el smoke, por lo que el artefacto incluye el paquete `numpy` completo. El
+script ejecuta el smoke mediante `Start-Process -Wait -PassThru`: al ser una
+aplicación GUI sin consola, invocarla directamente desde PowerShell puede
+devolver el control antes de que termine y enmascarar un error de arranque.
+
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
 validación de release: genera un MP4 temporal y prueba la ruta real
