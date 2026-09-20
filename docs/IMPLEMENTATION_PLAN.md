@@ -229,7 +229,7 @@ implementado workers, progreso ni cancelación, que pertenecen a Fase 11.
 
 ## Fase 11 — Background, progreso y operación
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: hacer la GUI segura y efectiva durante trabajos largos.
 
@@ -252,14 +252,18 @@ Entregables:
 
 No inventar porcentaje interno de inferencia mientras el engine no exponga progreso real.
 
-Implementación inicial de ChatGPT publicada: worker Qt, progreso por archivo,
-cancelación cooperativa, panel de diagnóstico y apertura de resultados. La fase
-permanece `NEXT` hasta completar la validación local definida en
-`docs/PHASE11_VALIDATION.md` y la auditoría posterior de ChatGPT.
+Completado: ChatGPT implementó worker Qt, progreso real por archivo, cancelación
+cooperativa, panel de diagnóstico y apertura de resultados. Codex validó la
+implementación en Windows real sobre la base `34bcf83`: bootstrap GUI correcto,
+29 pruebas verdes, Ruff y pip check correctos, smoke GUI real, procesamiento de
+MP4, carpeta/cancelación, errores y ruta `device=auto`. El commit
+`2f7084a176cf83af3c25937a9e01baa445e9de16` reforzó las pruebas de
+`folder-run.jsonl` tras cancelación y de la ruta enviada a
+`QDesktopServices`.
 
 ## Fase 12 — Release v0.2.0
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: publicar la primera versión con GUI conservando el CLI como herramienta independiente.
 
