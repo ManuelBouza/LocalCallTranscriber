@@ -34,15 +34,23 @@ Si dos documentos parecen contradecirse, no improvises: conserva el comportamien
 - Antes de hacer commit, revisa el diff y confirma que no contiene multimedia, modelos, secretos ni artefactos generados.
 - Cuando una fase termine correctamente, actualiza su estado en `docs/IMPLEMENTATION_PLAN.md` en el mismo cambio.
 
-## Flujo esperado para Codex
+## Modelo de trabajo ChatGPT + Codex
 
-Para cada tarea:
+El flujo normal del proyecto es:
 
-1. Lee las especificaciones aplicables.
-2. Identifica la fase activa.
-3. Implementa solo el alcance de esa fase.
-4. Ejecuta sus pruebas y criterios de aceptación.
-5. Corrige los incumplimientos detectados.
-6. Actualiza documentación si corresponde.
-7. Revisa el diff.
-8. Haz commit y push únicamente cuando los criterios de aceptación estén satisfechos.
+1. ChatGPT diseña la solución y realiza la implementación inicial del código, tests y documentación de la fase activa.
+2. ChatGPT hace commit/push de esa implementación en GitHub.
+3. Codex sincroniza `origin/main` y actúa principalmente como **verificador local y corrector** en el equipo Windows real.
+4. Codex ejecuta las pruebas automatizadas y las verificaciones locales aplicables, incluida la aplicación real cuando el criterio requiera comportamiento que no puede validarse sólo por inspección.
+5. Codex tiene libertad para modificar código, tests y documentación cuando sea necesario para que la tarea y sus criterios de aceptación se cumplan correctamente.
+6. Codex debe conservar el alcance de la fase activa y evitar rediseños o trabajo futuro no necesario.
+7. Si realiza ajustes, Codex revisa el diff, hace commit/push y reporta exactamente qué validó y qué cambió.
+8. ChatGPT audita el resultado publicado contra los criterios y decide si corresponde avanzar la siguiente fase.
+
+### Prioridad operativa de Codex
+
+Codex no debe rehacer por defecto el trabajo de diseño ya implementado por ChatGPT. Su prioridad es obtener evidencia local de que la solución funciona y corregir únicamente lo necesario.
+
+Puede apartarse de la implementación de ChatGPT cuando las pruebas, el comportamiento real de Windows, la mantenibilidad o los criterios de aceptación demuestren que un ajuste es pertinente.
+
+El objetivo de este reparto es reservar el contexto y los tokens de Codex para aquello que aporta valor diferencial: ejecución local, interacción con la aplicación, diagnóstico real, pruebas y correcciones.
