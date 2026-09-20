@@ -40,6 +40,7 @@ El primer uso descarga el modelo seleccionado a `%LOCALAPPDATA%\LocalCallTranscr
 - [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md): fases y estado.
 - [docs/ACCEPTANCE_CRITERIA.md](docs/ACCEPTANCE_CRITERIA.md): criterios de aceptación.
 - [docs/DECISIONS.md](docs/DECISIONS.md): decisiones técnicas.
+- [docs/CLI_AGENT_USAGE.md](docs/CLI_AGENT_USAGE.md): contrato práctico del CLI para scripts y agentes de IA.
 
 El repositorio es la fuente de verdad para la implementación. Los prompts dirigidos a Codex deben poder mantenerse mínimos leyendo estas especificaciones.
 
@@ -186,3 +187,10 @@ Para deshabilitarla, elimina la tarea:
 - **El modelo tarda o falla al descargarse:** verifica red y espacio libre; el modelo se guarda localmente fuera del repositorio.
 - **Una llamada se omite al procesar carpeta:** ya existen salidas. Revisa `folder-run.jsonl`; usa `--overwrite` sólo si quieres sustituirlas.
 - **La tarea diaria no se ejecuta:** prueba primero `run_folder_task.ps1` manualmente y revisa `automation.log` en el directorio de salida.
+
+
+## Interfaz CLI y futura GUI
+
+El CLI es una interfaz permanente del proyecto y seguirá disponible aunque exista una GUI. Para automatización o uso desde agentes de IA consulta [docs/CLI_AGENT_USAGE.md](docs/CLI_AGENT_USAGE.md).
+
+La GUI planificada para v0.2.0 será una capa opcional PySide6/Qt Widgets sobre la misma lógica de aplicación; no sustituirá el CLI.
