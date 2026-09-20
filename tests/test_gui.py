@@ -170,6 +170,9 @@ def test_gui_cancellation_finishes_current_file_and_stops_before_next(
     assert engine.calls == ["a.mp4"]
     assert (output_dir / "a.txt").is_file()
     assert not (output_dir / "b.txt").exists()
+    assert '"file": "a.mp4"' in (output_dir / "folder-run.jsonl").read_text(
+        encoding="utf-8"
+    )
     assert "Cancelado después del archivo actual: 1/2" in window.status_label.text()
     assert "CANCELADO" in window.log_view.toPlainText()
 
@@ -202,3 +205,24 @@ def test_gui_reports_engine_error_without_blocking(
 
     assert "modelo no disponible" in window.status_label.text()
     assert "ERROR" in window.log_view.toPlainText()
+
+
+def test_gui_opens_the_resolved_output_directory(
+    qapp: QApplication,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "results"
+    output_dir.mkdir()
+    opened_urls: list[str] = []
+    monkeypatch.setattr(
+        "local_call_transcriber.gui.main_window.QDesktopServices.openUrl",
+        lambda url: opened_urls.append(url.toLocalFile()) or True,
+    )
+    window = MainWindow()
+    window.output_dir_edit.setText(str(output_dir))
+
+    window.open_results()
+
+    assert len(opened_urls) == 1
+    assert Path(opened_urls[0]).resolve() == output_dir.resolve()
