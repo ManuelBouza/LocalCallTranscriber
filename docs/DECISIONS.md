@@ -255,3 +255,26 @@ conservan sus salidas antes de detener el lote.
 **Motivo:** mantiene la ventana responsiva y evita afirmar un porcentaje interno
 que faster-whisper/CTranslate2 no proporciona de forma fiable, a la vez que
 preserva resultados válidos ante una cancelación.
+
+
+## D-028 — pyside6-deploy standalone para la primera distribución GUI
+
+**Estado:** Aceptada
+
+La primera distribución Windows de la GUI usa `pyside6-deploy` de PySide6
+6.8.3 con Nuitka 2.6.8 en modo `standalone`. La configuración vive en
+`pysidedeploy.spec` y la construcción se orquesta mediante
+`scripts/package_gui.ps1`.
+
+El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
+empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
+validación de release: genera un MP4 temporal y prueba la ruta real
+`tiny/cpu/int8` y los outputs TXT/JSON/SRT/VTT.
+
+No se adopta todavía `onefile`. Puede evaluarse después si aporta una ventaja
+real sin degradar diagnóstico, tamaño, inicio o compatibilidad con las
+dependencias nativas de faster-whisper/CTranslate2.
+
+**Motivo:** Qt documenta `pyside6-deploy` como su herramienta de deployment y
+el modo standalone mantiene visibles las dependencias del paquete, lo que
+simplifica la primera validación y el diagnóstico en Windows.
