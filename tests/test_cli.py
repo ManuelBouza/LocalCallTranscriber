@@ -1,4 +1,6 @@
 import importlib.metadata
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -57,8 +59,24 @@ def test_cli_documented_file_flow_creates_locatable_txt(tmp_path: Path, capsys: 
     assert f"TXT: {output_dir / 'call-001.txt'}" in capsys.readouterr().out
 
 
-def test_nominal_entry_point_is_declared_and_cli_does_not_import_gui() -> None:
+def test_nominal_entry_point_is_declared() -> None:
     entry_points = importlib.metadata.entry_points(group="console_scripts")
 
     assert any(point.name == "local-call-transcriber" for point in entry_points)
-    assert "PySide6" not in sys.modules
+
+
+def test_cli_help_works_without_site_packages_or_pyside6() -> None:
+    source_root = Path(__file__).resolve().parents[1] / "src"
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(source_root)
+
+    completed = subprocess.run(
+        [sys.executable, "-S", "-m", "local_call_transcriber", "--help"],
+        capture_output=True,
+        check=False,
+        env=environment,
+        text=True,
+    )
+
+    assert completed.returncode == 0
+    assert "--output-dir" in completed.stdout

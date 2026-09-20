@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$PythonExecutable,
-    [switch]$SkipInstall
+    [switch]$SkipInstall,
+    [switch]$WithGui
 )
 
 Set-StrictMode -Version Latest
@@ -11,6 +12,7 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $venvPath = Join-Path $repositoryRoot '.venv'
 $venvPython = Join-Path $venvPath 'Scripts\python.exe'
 $requirementsFile = Join-Path $repositoryRoot 'requirements-dev.txt'
+$guiRequirementsFile = Join-Path $repositoryRoot 'requirements-gui.txt'
 $validatedPythonMajor = 3
 $validatedPythonMinor = 11
 
@@ -96,6 +98,17 @@ if (-not $SkipInstall) {
     & $venvPython -m pip install --requirement $requirementsFile
     if ($LASTEXITCODE -ne 0) {
         throw 'No se pudieron instalar las herramientas de desarrollo en .venv.'
+    }
+
+    if ($WithGui) {
+        if (-not (Test-Path -LiteralPath $guiRequirementsFile -PathType Leaf)) {
+            throw "No se encontró el archivo de dependencias GUI: $guiRequirementsFile"
+        }
+        Write-Host 'Instalando dependencias GUI opcionales dentro de .venv...' -ForegroundColor Cyan
+        & $venvPython -m pip install --requirement $guiRequirementsFile
+        if ($LASTEXITCODE -ne 0) {
+            throw 'No se pudieron instalar las dependencias GUI opcionales en .venv.'
+        }
     }
 
     & $venvPython -m pip install --editable $repositoryRoot --no-build-isolation

@@ -203,7 +203,7 @@ del TXT resultante.
 
 ## Fase 10 — GUI básica con PySide6
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: añadir una ventana desktop simple sobre el backend existente.
 
@@ -219,6 +219,13 @@ Entregables:
 - visualización de resultado/error.
 
 La GUI debe usar la capa de aplicación compartida y no invocar el CLI como subprocess.
+
+Completado: `local_call_transcriber.gui` implementa una ventana PySide6/Qt
+Widgets opcional. Sus controles construyen un `TranscriptionRequest` y llaman
+directamente a `TranscriptionApplication`; el CLI sigue sin requerir PySide6.
+La instalación opcional está fijada en `requirements-gui.txt` y se habilita con
+`scripts/bootstrap.ps1 -WithGui`. La ejecución permanece síncrona: no se han
+implementado workers, progreso ni cancelación, que pertenecen a Fase 11.
 
 ## Fase 11 — Background, progreso y operación
 

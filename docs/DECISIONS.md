@@ -211,3 +211,17 @@ sin dependencias GUI que también utilizará la futura ventana.
 
 **Motivo:** ofrece un comando instalable y predecible para humanos, scripts y
 agentes, a la vez que evita duplicar el pipeline cuando se incorpore PySide6.
+
+## D-025 — PySide6 opcional y ejecución directa de la capa de aplicación
+
+**Estado:** Aceptada
+
+PySide6 6.8.3 se declara como extra opcional y se instala con
+`scripts/bootstrap.ps1 -WithGui`; no forma parte de las dependencias core. La
+ventana Qt Widgets traduce sus controles a `TranscriptionRequest` y llama a
+`TranscriptionApplication` directamente. La primera versión ejecuta de forma
+síncrona; no incorpora workers, progreso ni cancelación.
+
+**Motivo:** permite una operación desktop básica sin romper la automatización
+ni añadir una dependencia GUI al CLI. Reservar la concurrencia para Fase 11
+evita introducir una solución parcial de threading fuera de su alcance.

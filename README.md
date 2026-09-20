@@ -201,4 +201,22 @@ Para deshabilitarla, elimina la tarea:
 
 El CLI es una interfaz permanente del proyecto y seguirá disponible aunque exista una GUI. Para automatización o uso desde agentes de IA consulta [docs/CLI_AGENT_USAGE.md](docs/CLI_AGENT_USAGE.md).
 
-La GUI planificada para v0.2.0 será una capa opcional PySide6/Qt Widgets sobre la misma lógica de aplicación; no sustituirá el CLI ni será necesaria para ejecutarlo.
+## GUI opcional
+
+La GUI básica usa PySide6 + Qt Widgets y llama directamente a la misma
+`TranscriptionApplication` que usa el CLI; no lanza comandos CLI como
+subprocess. Instálala sólo si la necesitas:
+
+```powershell
+.\scripts\bootstrap.ps1 -WithGui
+.\.venv\Scripts\python.exe -m local_call_transcriber.gui
+```
+
+También queda disponible el ejecutable `local-call-transcriber-gui.exe` dentro
+de `.venv\Scripts` tras el bootstrap. Permite seleccionar un MP4 o una carpeta,
+la salida, perfil, idioma, hardware, VAD, timestamps por palabra y overwrite.
+La ejecución es síncrona en esta primera ventana; progreso, cancelación y
+ejecución en segundo plano son trabajo explícitamente reservado para la Fase 11.
+
+El CLI no importa ni requiere PySide6 y continúa siendo la interfaz recomendada
+para scripts y agentes.

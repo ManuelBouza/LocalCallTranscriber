@@ -84,7 +84,7 @@ La estructura exacta puede evolucionar si mejora la cohesión, pero deben conser
 
 - `cli`: parsing y presentación CLI, sin lógica pesada; contrato permanente para humanos/scripts/agentes.
 - `application`: `TranscriptionRequest`, construcción de engine y servicio compartido por CLI y GUI. No depende de argumentos CLI ni de Qt.
-- `gui`: presentación Qt Widgets y coordinación de workers; no contiene lógica de transcripción duplicada.
+- `gui`: presentación Qt Widgets; traduce controles a `TranscriptionRequest` y llama a `TranscriptionApplication`. No contiene lógica de transcripción duplicada ni invoca el CLI. Los workers se incorporarán en Fase 11.
 - `config`: lectura/validación TOML y defaults.
 - `domain`: modelos de datos independientes del motor.
 - `hardware`: detección de CPU/CUDA y compute types.
@@ -161,6 +161,10 @@ Los perfiles candidatos iniciales son:
 `auto` intentará seleccionar la mejor ruta validada. Si la inicialización CUDA falla, deberá poder continuar en CPU y registrar claramente el fallback.
 
 ## Dependencias
+
+PySide6 6.8.3 es un extra opcional (`.[gui]`) y también está fijado en
+`requirements-gui.txt`. El runtime core y el CLI no lo declaran como dependencia
+obligatoria; `scripts/bootstrap.ps1 -WithGui` lo instala sólo en `.venv`.
 
 Versión candidata inicial investigada:
 - `faster-whisper 1.2.1`.
