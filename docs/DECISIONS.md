@@ -225,3 +225,14 @@ síncrona; no incorpora workers, progreso ni cancelación.
 **Motivo:** permite una operación desktop básica sin romper la automatización
 ni añadir una dependencia GUI al CLI. Reservar la concurrencia para Fase 11
 evita introducir una solución parcial de threading fuera de su alcance.
+
+
+## D-026 — ChatGPT implementa; Codex valida y corrige localmente
+
+**Estado:** Aceptada
+
+El flujo de desarrollo post-MVP asigna a ChatGPT el diseño y la implementación inicial de cada fase. Codex se utiliza después como verificador sobre el equipo Windows real: sincroniza la implementación, ejecuta tests y pruebas operativas, inspecciona la aplicación y corrige código, tests o documentación cuando sea necesario para satisfacer la tarea.
+
+Codex conserva libertad técnica para ajustar la solución si la evidencia local lo justifica, pero debe respetar el alcance de la fase activa y no implementar trabajo futuro innecesario. Tras su validación o correcciones, ChatGPT realiza la auditoría final antes de avanzar el plan.
+
+**Motivo:** concentrar en Codex las tareas donde su acceso al entorno local aporta más valor y reducir el consumo de contexto/tokens en diseño e implementación que pueden realizarse previamente desde ChatGPT.
