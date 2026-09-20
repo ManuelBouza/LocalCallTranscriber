@@ -19,12 +19,27 @@ y completar la tarea sin conocer detalles internos de faster-whisper.
 - Entorno `.venv` preparado con `.\scripts\bootstrap.ps1`.
 - El audio, vídeo y las transcripciones permanecen locales.
 
-## Invocación estable disponible en v0.1.0
+## Invocaciones estables
+
+El entry point nominal para automatización es:
+
+```powershell
+.\.venv\Scripts\local-call-transcriber.exe "<INPUT>" --output-dir "<OUTPUT_DIR>"
+```
+
+También se mantiene, por compatibilidad, la invocación por módulo:
 
 Desde la raíz del repositorio:
 
 ```powershell
 .\.venv\Scripts\python.exe -m local_call_transcriber "<INPUT>" --output-dir "<OUTPUT_DIR>"
+```
+
+Ambas formas aceptan las mismas opciones, generan las mismas salidas y usan el
+mismo pipeline local. Para consultar el contrato de opciones instalado:
+
+```powershell
+.\.venv\Scripts\local-call-transcriber.exe --help
 ```
 
 `<INPUT>` puede ser:
@@ -132,8 +147,9 @@ C:\Temp\meeting-transcript\meeting.txt
 
 y utilizar ese contenido para responder a la tarea del usuario.
 
-## Evolución prevista en v0.2
+## Compatibilidad e independencia
 
-La fase de contrato CLI añadirá un entry point nominal más cómodo para automatización sin romper la invocación anterior. La forma `python -m local_call_transcriber` seguirá siendo compatible.
-
-La GUI de v0.2 utilizará la misma capa de aplicación que el CLI y no será requisito para ejecutar el CLI.
+`python -m local_call_transcriber` seguirá siendo compatible. El entry point
+nominal y esta forma de módulo llaman a la misma capa de aplicación compartida.
+El CLI no importa ni requiere PySide6; una futura GUI de v0.2 será opcional y
+utilizará esa misma capa, sin lanzar el CLI como subprocess.

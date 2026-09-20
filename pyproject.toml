@@ -11,6 +11,9 @@ requires-python = ">=3.11"
 license = { file = "LICENSE" }
 dependencies = ["faster-whisper==1.2.1"]
 
+[project.scripts]
+local-call-transcriber = "local_call_transcriber.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

@@ -83,7 +83,7 @@ src/local_call_transcriber/
 La estructura exacta puede evolucionar si mejora la cohesión, pero deben conservarse las siguientes fronteras:
 
 - `cli`: parsing y presentación CLI, sin lógica pesada; contrato permanente para humanos/scripts/agentes.
-- `application`: construcción de solicitudes, configuración efectiva y servicios compartidos por CLI y GUI.
+- `application`: `TranscriptionRequest`, construcción de engine y servicio compartido por CLI y GUI. No depende de argumentos CLI ni de Qt.
 - `gui`: presentación Qt Widgets y coordinación de workers; no contiene lógica de transcripción duplicada.
 - `config`: lectura/validación TOML y defaults.
 - `domain`: modelos de datos independientes del motor.

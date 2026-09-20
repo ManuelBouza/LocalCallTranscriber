@@ -118,6 +118,14 @@ La primera ruta operativa usa `faster-whisper 1.2.1` con `device=cpu` y `compute
 
 El comando genera `llamada.txt`, `llamada.json`, `llamada.srt` y `llamada.vtt`. El JSON incluye al menos el modelo, idioma, segmentos y sus timestamps. Omite `--language` para detectar el idioma automáticamente o indica, por ejemplo, `--language es`.
 
+El entry point nominal para scripts y automatización es `local-call-transcriber`; conserva exactamente el mismo contrato que `python -m local_call_transcriber`:
+
+```powershell
+.\.venv\Scripts\local-call-transcriber.exe .\llamada.mp4 --output-dir .\output
+```
+
+Consulta `--help` para las opciones y [docs/CLI_AGENT_USAGE.md](docs/CLI_AGENT_USAGE.md) para el contrato completo de salidas y códigos de retorno.
+
 Usa `--word-timestamps` para incluir timestamps por palabra en el JSON. Las salidas se ordenan cronológicamente. Por seguridad, el CLI rechaza salidas existentes; añade `--overwrite` solo cuando quieras sustituir explícitamente los cuatro archivos de esa llamada.
 
 El primer uso de un modelo lo descarga a `%LOCALAPPDATA%\LocalCallTranscriber\models`; no se versiona. Para validar la ruta real CPU con un MP4 temporal generado por PyAV:
@@ -193,4 +201,4 @@ Para deshabilitarla, elimina la tarea:
 
 El CLI es una interfaz permanente del proyecto y seguirá disponible aunque exista una GUI. Para automatización o uso desde agentes de IA consulta [docs/CLI_AGENT_USAGE.md](docs/CLI_AGENT_USAGE.md).
 
-La GUI planificada para v0.2.0 será una capa opcional PySide6/Qt Widgets sobre la misma lógica de aplicación; no sustituirá el CLI.
+La GUI planificada para v0.2.0 será una capa opcional PySide6/Qt Widgets sobre la misma lógica de aplicación; no sustituirá el CLI ni será necesaria para ejecutarlo.

@@ -199,3 +199,15 @@ La primera GUI desktop se implementará con PySide6 y Qt Widgets. La interfaz se
 Los trabajos de transcripción no se ejecutarán en el hilo de eventos de Qt.
 
 **Motivo:** PySide6 permite una aplicación desktop nativa y mantenible sobre el backend Python existente, con threading/workers y una ruta posterior de empaquetado Windows, sin introducir una arquitectura web.
+
+## D-024 — Entry point nominal y solicitud compartida
+
+**Estado:** Aceptada
+
+El comando nominal de automatización es `local-call-transcriber`, conservando
+como compatible `python -m local_call_transcriber`. Ambos adaptan su entrada a
+`TranscriptionRequest` y usan `TranscriptionApplication`, la capa de aplicación
+sin dependencias GUI que también utilizará la futura ventana.
+
+**Motivo:** ofrece un comando instalable y predecible para humanos, scripts y
+agentes, a la vez que evita duplicar el pipeline cuando se incorpore PySide6.

@@ -180,7 +180,7 @@ Las fases 0–8 corresponden al MVP v0.1.0 y permanecen cerradas. El trabajo sig
 
 ## Fase 9 — Contrato CLI y capa de aplicación compartida
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: reforzar el CLI como interfaz permanente para humanos, scripts y agentes de IA antes de añadir la GUI.
 
@@ -193,6 +193,13 @@ Entregables:
 - garantizar que el core/CLI no depende de PySide6.
 
 No implementar todavía la ventana gráfica.
+
+Completado: se mantiene `python -m local_call_transcriber` y se incorpora el
+entry point nominal `local-call-transcriber`. Ambos convierten la entrada en un
+`TranscriptionRequest` y llaman a `TranscriptionApplication`, sin importar
+PySide6. `docs/CLI_AGENT_USAGE.md` documenta los comandos, outputs y códigos de
+salida; las pruebas cubren `--help`, el flujo de una fixture y la localización
+del TXT resultante.
 
 ## Fase 10 — GUI básica con PySide6
 
