@@ -139,6 +139,10 @@ Para toda fase:
 - Dependencias GUI fijadas y separadas del core cuando corresponda.
 - CLI y GUI documentados.
 - El CLI sigue pasando sus pruebas independientemente de la GUI.
-- Se valida la ruta de empaquetado Windows elegida antes de publicar.
+- El paquete Windows standalone se construye desde la configuración versionada.
+- El smoke del ejecutable empaquetado transcribe un MP4 temporal y valida TXT/JSON/SRT/VTT.
+- El artefacto no contiene pesos de modelos ni datos de llamadas.
+- El ejecutable GUI empaquetado abre correctamente en Windows.
+- La auditoría de release no detecta multimedia/transcripciones/modelos versionados ni patrones comunes de secretos.
 - Changelog/release notes actualizados.
 - El tag de v0.2.0 se crea sólo después de todas las verificaciones.
