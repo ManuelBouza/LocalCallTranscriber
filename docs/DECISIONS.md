@@ -298,3 +298,21 @@ dependencias nativas de faster-whisper/CTranslate2.
 **Motivo:** Qt documenta `pyside6-deploy` como su herramienta de deployment y
 el modo standalone mantiene visibles las dependencias del paquete, lo que
 simplifica la primera validación y el diagnóstico en Windows.
+
+
+## D-029 — Diferir mejoras de revisión y calidad hasta después de v0.2.0
+
+**Estado:** Aceptada
+
+Las mejoras descubiertas durante pruebas reales —progreso detallado, diagnóstico
+de caché/symlinks, reproductor sincronizado, revisión humana, señales de
+confianza y estrategia híbrida Turbo/large-v3— se documentan en
+`docs/POST_V020_QUALITY_REVIEW.md` y quedan fuera del release candidate
+v0.2.0 actualmente en validación.
+
+No se modificarán los defaults de v0.2.0 basándose en una única llamada real.
+Las observaciones deben revisarse y validarse sobre más muestras antes de
+convertirse en política permanente.
+
+**Motivo:** preservar la estabilidad y reproducibilidad de la release que ya está
+siendo validada, sin perder los hallazgos de calidad obtenidos con audio real.
