@@ -144,7 +144,7 @@ Completado: la CLI acepta un directorio de MP4 no recursivo, continúa tras fall
 
 ## Fase 7 — Automatización recurrente
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: eliminar la ejecución manual cuando el flujo base sea estable.
 
