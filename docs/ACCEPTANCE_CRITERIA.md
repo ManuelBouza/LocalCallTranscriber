@@ -100,3 +100,45 @@ Para toda fase:
 - Suite de tests verde.
 - No hay secretos ni datos sensibles en el historial nuevo de la release.
 - Tag de versión creado solo después de las verificaciones finales.
+
+
+## v0.2.0 — Fase 9 — Contrato CLI y capa compartida
+
+- La invocación `python -m local_call_transcriber` sigue funcionando.
+- Existe un entry point CLI nominal y documentado para automatización.
+- `--help` documenta las opciones soportadas.
+- Los códigos de salida y outputs están documentados en `docs/CLI_AGENT_USAGE.md`.
+- Un agente que siga únicamente `docs/CLI_AGENT_USAGE.md` puede transcribir una fixture MP4 y localizar el TXT resultante.
+- El CLI funciona sin importar PySide6.
+- CLI y futura GUI pueden reutilizar una capa de aplicación compartida sin duplicar el pipeline.
+- Las pruebas existentes siguen verdes.
+
+## v0.2.0 — Fase 10 — GUI básica
+
+- La GUI usa PySide6 + Qt Widgets.
+- Puede seleccionar un MP4 o una carpeta y un directorio de salida.
+- Permite escoger rápido/calidad, idioma, auto/GPU/CPU, VAD, word timestamps y overwrite.
+- Los valores simples de GUI se traducen correctamente a la configuración core.
+- La GUI llama a la capa de aplicación compartida, no ejecuta el CLI como subprocess.
+- El CLI continúa funcionando sin PySide6 instalado.
+- La GUI muestra errores accionables.
+
+## v0.2.0 — Fase 11 — Ejecución background y UX
+
+- La ventana no se bloquea durante una transcripción.
+- Los trabajos se ejecutan fuera del hilo de eventos Qt.
+- Existe estado visible por archivo y resumen para carpetas.
+- Puede solicitarse cancelación segura al terminar el archivo actual.
+- Puede abrirse el directorio de resultados.
+- Existe un panel o superficie equivalente para logs/diagnóstico.
+- Se validan archivo individual, carpeta, error y fallback CPU.
+
+## v0.2.0 — Fase 12 — Release GUI
+
+- Instalación desde clone limpio validada.
+- Dependencias GUI fijadas y separadas del core cuando corresponda.
+- CLI y GUI documentados.
+- El CLI sigue pasando sus pruebas independientemente de la GUI.
+- Se valida la ruta de empaquetado Windows elegida antes de publicar.
+- Changelog/release notes actualizados.
+- El tag de v0.2.0 se crea sólo después de todas las verificaciones.
