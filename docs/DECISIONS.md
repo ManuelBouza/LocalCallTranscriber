@@ -266,6 +266,11 @@ La primera distribución Windows de la GUI usa `pyside6-deploy` de PySide6
 `pysidedeploy.spec` y la construcción se orquesta mediante
 `scripts/package_gui.ps1`.
 
+La configuración de Nuitka incluye `--assume-yes-for-downloads`: en una
+máquina Windows sin el compilador compatible, autoriza únicamente la descarga
+cacheada del toolchain que Nuitka solicita para completar un build no
+interactivo de release.
+
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
 validación de release: genera un MP4 temporal y prueba la ruta real
