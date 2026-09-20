@@ -271,6 +271,11 @@ máquina Windows sin el compilador compatible, autoriza únicamente la descarga
 cacheada del toolchain que Nuitka solicita para completar un build no
 interactivo de release.
 
+También desactiva únicamente la caché C de Nuitka (`--disable-cache=ccache`).
+En la validación nativa, el wrapper `ccache` de ese toolchain no conservó las
+rutas de cabeceras MinGW, aunque GCC directo sí las resolvió; prescindir de esa
+caché mantiene el build determinista a costa de no reutilizar objetos C.
+
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
 validación de release: genera un MP4 temporal y prueba la ruta real

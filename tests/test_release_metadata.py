@@ -27,6 +27,7 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
 
     extra_args = config["nuitka"]["extra_args"]
     assert "--assume-yes-for-downloads" in extra_args
+    assert "--disable-cache=ccache" in extra_args
     assert "--noinclude-qt-translations" in extra_args
     assert "--noinclude-qt-translations=" not in extra_args
     assert "--windows-console-mode=disable" in extra_args
