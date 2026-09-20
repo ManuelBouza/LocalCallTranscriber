@@ -282,9 +282,10 @@ PySide6 6.8.3/Nuitka genera inicialmente `gui_main.exe` dentro del directorio
 standalone. El script de release lo renombra a `LocalCallTranscriber.exe` antes
 del smoke y de crear el manifiesto, de forma que el nombre público sea estable.
 
-La configuración incluye explícitamente el paquete `av`: PyAV resuelve módulos
-como `av.utils` de forma dinámica, por lo que el seguimiento estático de Nuitka
-no basta para el smoke ni para el arranque del ejecutable.
+La configuración incluye explícitamente el módulo `av.utils`: PyAV lo resuelve
+de forma dinámica, por lo que el seguimiento estático de Nuitka no basta para
+el smoke ni para el arranque del ejecutable. Incluir sólo ese módulo evita un
+`AssertionError` interno de Nuitka 2.6.8 al incluir el paquete PyAV completo.
 
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para

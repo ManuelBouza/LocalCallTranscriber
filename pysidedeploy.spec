@@ -18,4 +18,4 @@ plugins = platforms
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --assume-yes-for-downloads --disable-cache=ccache --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=av --include-package=faster_whisper --include-package=ctranslate2
+extra_args = --quiet --assume-yes-for-downloads --disable-cache=ccache --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-module=av.utils --include-package=faster_whisper --include-package=ctranslate2
