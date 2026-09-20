@@ -9,6 +9,7 @@ from local_call_transcriber.application import (
     TranscriptionRequest,
 )
 from local_call_transcriber.domain import TranscriptResult, TranscriptSegment
+from local_call_transcriber.orchestration import FolderItemResult
 
 
 class StubEngine:
@@ -72,10 +73,10 @@ def test_application_reports_progress_and_cancels_between_folder_items(
         assert index >= 1
         started.append(path.name)
 
-    def on_finished(item: object, index: int, total: int) -> None:
+    def on_finished(item: FolderItemResult, index: int, total: int) -> None:
         assert total == 2
         assert index == 1
-        finished.append(item.source.name)  # type: ignore[attr-defined]
+        finished.append(item.source.name)
         cancellation["requested"] = True
 
     run = TranscriptionApplication(lambda _: StubEngine()).run(
