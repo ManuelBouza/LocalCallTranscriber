@@ -52,3 +52,6 @@ def test_packaging_restores_the_versioned_deploy_spec() -> None:
 
     assert "ReadAllBytes($specFile)" in package_script
     assert "WriteAllBytes($specFile, $originalSpecBytes)" in package_script
+    assert "getCachedDownloadedMinGW64" in package_script
+    assert "$env:C_INCLUDE_PATH = $mingwInclude" in package_script
+    assert "$env:C_INCLUDE_PATH = $originalCIncludePath" in package_script

@@ -14,6 +14,7 @@ $deployTool = Join-Path $repositoryRoot '.venv\Scripts\pyside6-deploy.exe'
 $specFile = Join-Path $repositoryRoot 'pysidedeploy.spec'
 $distDir = Join-Path $repositoryRoot 'dist'
 $expectedVersion = '0.2.0'
+$originalCIncludePath = $env:C_INCLUDE_PATH
 
 if ($env:OS -ne 'Windows_NT') {
     throw 'El paquete de release se construye únicamente en Windows.'
@@ -47,6 +48,27 @@ Push-Location $repositoryRoot
 try {
     if (-not $DryRun -and (Test-Path -LiteralPath $distDir)) {
         Remove-Item -LiteralPath $distDir -Recurse -Force
+    }
+
+    if (-not $DryRun) {
+        # Nuitka descarga su MinGW64 compatible cuando no hay MSVC. En esta
+        # versión del toolchain, las rutas -I que genera Nuitka requieren
+        # volver a exponer sus cabeceras como ruta de sistema para resolver
+        # _mingw_stdarg.h.
+        & $venvPython -m pip install 'nuitka==2.6.8' 'ordered_set' 'zstandard'
+        if ($LASTEXITCODE -ne 0) {
+            throw "No se pudieron preparar las dependencias de build de Nuitka (código $LASTEXITCODE)."
+        }
+        $mingwGcc = & $venvPython -c 'from nuitka.utils.Download import getCachedDownloadedMinGW64; print(getCachedDownloadedMinGW64("x86_64", True, True))'
+        if ($LASTEXITCODE -ne 0) {
+            throw "No se pudo preparar el compilador MinGW64 de Nuitka (código $LASTEXITCODE)."
+        }
+        $mingwRoot = Split-Path -Parent (Split-Path -Parent $mingwGcc[-1].ToString().Trim())
+        $mingwInclude = Join-Path $mingwRoot 'x86_64-w64-mingw32\include'
+        if (-not (Test-Path -LiteralPath $mingwInclude -PathType Container)) {
+            throw "No se encontró el directorio de cabeceras MinGW64 de Nuitka: $mingwInclude"
+        }
+        $env:C_INCLUDE_PATH = $mingwInclude
     }
 
     $deployArguments = @(
@@ -120,5 +142,6 @@ finally {
     # pyside6-deploy normaliza rutas y reescribe el spec; la configuración
     # versionada debe permanecer portable y el dry-run no debe ensuciar Git.
     [IO.File]::WriteAllBytes($specFile, $originalSpecBytes)
+    $env:C_INCLUDE_PATH = $originalCIncludePath
     Pop-Location
 }

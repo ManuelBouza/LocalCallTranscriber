@@ -271,10 +271,12 @@ máquina Windows sin el compilador compatible, autoriza únicamente la descarga
 cacheada del toolchain que Nuitka solicita para completar un build no
 interactivo de release.
 
-También desactiva únicamente la caché C de Nuitka (`--disable-cache=ccache`).
-En la validación nativa, el wrapper `ccache` de ese toolchain no conservó las
-rutas de cabeceras MinGW, aunque GCC directo sí las resolvió; prescindir de esa
-caché mantiene el build determinista a costa de no reutilizar objetos C.
+El script prepara explícitamente el MinGW64 soportado que Nuitka descarga y
+exporta, sólo durante el proceso de empaquetado, su directorio de cabeceras
+como `C_INCLUDE_PATH`. Con CPython oficial y ese toolchain, las rutas `-I` de
+Nuitka requieren exponer la misma ruta como include de sistema para resolver
+`_mingw_stdarg.h`. La variable se restaura al finalizar y no modifica PATH ni
+la configuración global del equipo.
 
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
