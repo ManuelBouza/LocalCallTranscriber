@@ -158,7 +158,7 @@ Completado: se eligió Windows Task Scheduler frente a watcher persistente (D-02
 
 ## Fase 8 — Release MVP
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: dejar una versión pública reproducible.
 
