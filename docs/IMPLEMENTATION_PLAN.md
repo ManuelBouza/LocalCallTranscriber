@@ -233,6 +233,14 @@ implementado workers, progreso ni cancelación, que pertenecen a Fase 11.
 
 Objetivo: hacer la GUI segura y efectiva durante trabajos largos.
 
+Modelo de ejecución de esta fase:
+- ChatGPT realiza el diseño y la implementación inicial del código, tests y documentación;
+- ChatGPT publica esa implementación en GitHub;
+- Codex sincroniza después `origin/main` y valida la aplicación en el equipo Windows real;
+- Codex ejecuta las pruebas automatizadas y las pruebas operativas necesarias;
+- Codex puede ajustar código, tests y documentación si la evidencia local lo hace pertinente para cumplir los criterios;
+- ChatGPT audita finalmente los cambios publicados por Codex antes de avanzar la Fase 12.
+
 Entregables:
 - worker/`QThreadPool` o equivalente Qt;
 - UI responsiva durante transcripción;
