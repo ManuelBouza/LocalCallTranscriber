@@ -4,7 +4,7 @@ Aplicación local para Windows 11 orientada a la transcripción de archivos de l
 
 ## Estado
 
-MVP `v0.1.0`: listo para Windows 11 nativo con PowerShell. El procesamiento es local; CPU funciona sin CUDA y GPU es opcional.
+`v0.2.0` está preparado como release candidate con CLI permanente y GUI desktop opcional. El tag público `v0.2.0` se crea únicamente después de validar el release desde un clone limpio en Windows. El procesamiento sigue siendo local; CPU funciona sin CUDA y GPU es opcional.
 
 La primera integración prevista es `faster-whisper`. La estructura del proyecto permitirá incorporar otros motores posteriormente sin rehacer la aplicación.
 
@@ -228,3 +228,31 @@ mitad. El archivo en curso termina y, en un lote, no se inicia el siguiente.
 
 El CLI no importa ni requiere PySide6 y continúa siendo la interfaz recomendada
 para scripts y agentes.
+
+
+## Empaquetado Windows de la GUI
+
+La ruta de release usa `pyside6-deploy` sobre PySide6 6.8.3, con Nuitka 2.6.8 y modo `standalone`. El resultado queda bajo `dist/` y no se versiona.
+
+Prepara el entorno y construye/valida el paquete:
+
+```powershell
+.\scripts\bootstrap.ps1 -WithGui
+.\scripts\package_gui.ps1
+```
+
+Para inspeccionar el comando Nuitka sin compilar:
+
+```powershell
+.\scripts\package_gui.ps1 -DryRun
+```
+
+El script exige la versión 0.2.0 instalada en `.venv`, ejecuta el smoke no interactivo del ejecutable con un MP4 temporal en CPU `int8`, comprueba que se generen TXT/JSON/SRT/VTT y rechaza pesos de modelos dentro del paquete. También genera `dist\package-manifest.json` con SHA-256, cantidad de archivos y tamaño total.
+
+La auditoría completa previa al tag se ejecuta con:
+
+```powershell
+.\scripts\release_audit.ps1
+```
+
+Esta auditoría requiere un árbol Git limpio, ejecuta la suite completa, `pip check`, revisa artefactos versionados y patrones comunes de secretos, construye el paquete y verifica que el tag `v0.2.0` todavía no exista. El tag sólo debe crearse después de la validación local final.
