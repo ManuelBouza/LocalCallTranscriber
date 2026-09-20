@@ -162,3 +162,11 @@ El default es `large-v3-turbo`, `device=auto` y `compute_type=auto` (CUDA `float
 Estos resultados son una observación controlada y cualitativa, no una afirmación universal de calidad. `large-v3-turbo` se elige como perfil rápido por rendimiento; `large-v3` permanece disponible como perfil de calidad.
 
 **Motivo:** `large-v3-turbo` reduce el tiempo de proceso y carga manteniendo el perfil rápido previsto. El fallback CPU conserva la disponibilidad sin CUDA.
+
+## D-020 — Carpeta no recursiva y salidas como marca de completado
+
+**Estado:** Aceptada
+
+El modo carpeta procesa sólo `*.mp4` del directorio indicado. Un archivo con salidas existentes se omite salvo `--overwrite`; los errores no interrumpen el resto. Cada ejecución deja un registro JSONL y un resumen.
+
+**Motivo:** permite repetir el proceso sin destruir resultados ni reprocesar llamadas ya terminadas.

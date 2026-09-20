@@ -135,3 +135,13 @@ Compara `large-v3` y `large-v3-turbo` en CPU `int8` y GPU `float16`/`int8_float1
 ```powershell
 .\scripts\benchmark.ps1 -InputMp4 'D:\Llamadas\muestra-controlada.mp4'
 ```
+
+## Procesamiento por carpeta
+
+Pasa un directorio que contenga MP4 (sin recorrer subdirectorios). Cada archivo continúa de forma independiente aunque otro falle. Los resultados se escriben en `--output-dir`, se registra una línea JSON por archivo en `folder-run.jsonl` y se muestra un resumen final.
+
+```powershell
+.\.venv\Scripts\python.exe -m local_call_transcriber .\input --output-dir .\output
+```
+
+Por seguridad, un MP4 con cualquiera de sus salidas existentes queda omitido. Usa `--overwrite` sólo para volver a procesar deliberadamente esos archivos.

@@ -6,12 +6,12 @@ from pathlib import Path
 
 from local_call_transcriber.engines.faster_whisper import FasterWhisperEngine
 from local_call_transcriber.hardware import COMPUTE_TYPE_CHOICES, DEVICE_CHOICES
-from local_call_transcriber.orchestration import InputValidationError, transcribe_file
+from local_call_transcriber.orchestration import InputValidationError, transcribe_file, transcribe_folder
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Transcribe un MP4 local con faster-whisper.")
-    parser.add_argument("input", type=Path, help="Archivo MP4 local")
+    parser.add_argument("input", type=Path, help="Archivo MP4 o directorio local de MP4")
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
     parser.add_argument("--model", default="large-v3-turbo", help="Modelo faster-whisper a descargar localmente")
     parser.add_argument("--language", default=None, help="Idioma ISO, por ejemplo es o en; omite para auto")
@@ -41,6 +41,18 @@ def main(argv: list[str] | None = None) -> int:
         compute_type=args.compute_type,
     )
     try:
+        if args.input.is_dir():
+            results = transcribe_folder(
+                engine, args.input, args.output_dir, args.language, not args.no_vad,
+                args.word_timestamps, args.overwrite,
+            )
+            for result in results:
+                print(f"{result.status.upper()}: {result.source.name} — {result.detail}")
+            successes = sum(item.status == "success" for item in results)
+            failures = sum(item.status == "error" for item in results)
+            skipped = sum(item.status == "skipped" for item in results)
+            print(f"Resumen: {successes} éxito(s), {failures} error(es), {skipped} omitido(s).")
+            return 3 if failures else 0
         outputs = transcribe_file(
             engine=engine,
             media_path=args.input,

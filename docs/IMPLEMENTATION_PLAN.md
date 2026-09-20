@@ -128,7 +128,7 @@ Completado tras la auditoría #4: `scripts/benchmark.ps1` genera una muestra de 
 
 ## Fase 6 — Procesamiento por carpeta
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: procesar de forma repetible múltiples llamadas.
 
@@ -139,6 +139,8 @@ Entregables previstos:
 - logs;
 - no reprocesar accidentalmente archivos ya completados;
 - resumen final de éxitos/fallos.
+
+Completado: la CLI acepta un directorio de MP4 no recursivo, continúa tras fallos individuales, muestra un resumen y escribe `folder-run.jsonl`. Las salidas existentes se omiten salvo `--overwrite`, por lo que repetir la ejecución es segura.
 
 ## Fase 7 — Automatización recurrente
 

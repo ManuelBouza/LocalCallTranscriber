@@ -1,5 +1,6 @@
 """Coordinación del flujo de transcripción para un archivo."""
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,6 +19,13 @@ class OutputPaths:
     json: Path
     srt: Path
     vtt: Path
+
+
+@dataclass(frozen=True)
+class FolderItemResult:
+    source: Path
+    status: str
+    detail: str
 
 
 def validate_mp4(media_path: Path) -> None:
@@ -63,3 +71,31 @@ def transcribe_file(
     write_srt(ordered_result, outputs.srt)
     write_vtt(ordered_result, outputs.vtt)
     return outputs
+
+
+def transcribe_folder(
+    engine: TranscriptionEngine,
+    input_dir: Path,
+    output_dir: Path,
+    language: str | None,
+    vad: bool,
+    word_timestamps: bool,
+    overwrite: bool,
+) -> tuple[FolderItemResult, ...]:
+    if not input_dir.is_dir():
+        raise InputValidationError(f"No existe el directorio de entrada: {input_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    results = []
+    log_path = output_dir / "folder-run.jsonl"
+    for media_path in sorted(input_dir.glob("*.mp4")):
+        try:
+            transcribe_file(engine, media_path, output_dir, language, vad, word_timestamps, overwrite)
+            item = FolderItemResult(media_path, "success", "Salidas generadas.")
+        except InputValidationError as error:
+            item = FolderItemResult(media_path, "skipped", str(error))
+        except RuntimeError as error:
+            item = FolderItemResult(media_path, "error", str(error))
+        results.append(item)
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(json.dumps({"file": media_path.name, "status": item.status, "detail": item.detail}, ensure_ascii=False) + "\n")
+    return tuple(results)
