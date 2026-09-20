@@ -25,7 +25,6 @@ from local_call_transcriber.application import (
     FolderTranscriptionRun,
     TranscriptionApplication,
     TranscriptionRequest,
-    TranscriptionRun,
 )
 from local_call_transcriber.gui.workers import TranscriptionWorker
 from local_call_transcriber.orchestration import FolderItemResult
