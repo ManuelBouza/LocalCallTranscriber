@@ -96,6 +96,16 @@ try {
     $executables = @(
         Get-ChildItem -LiteralPath $distDir -Recurse -File -Filter 'LocalCallTranscriber.exe'
     )
+    if ($executables.Count -eq 0) {
+        $generatedExecutables = @(
+            Get-ChildItem -LiteralPath $distDir -Recurse -File -Filter 'gui_main.exe'
+        )
+        if ($generatedExecutables.Count -eq 1) {
+            $renamedExecutable = Join-Path $generatedExecutables[0].DirectoryName 'LocalCallTranscriber.exe'
+            Rename-Item -LiteralPath $generatedExecutables[0].FullName -NewName 'LocalCallTranscriber.exe'
+            $executables = @(Get-Item -LiteralPath $renamedExecutable)
+        }
+    }
     if ($executables.Count -ne 1) {
         throw "Se esperaba exactamente un LocalCallTranscriber.exe en dist; encontrados: $($executables.Count)."
     }

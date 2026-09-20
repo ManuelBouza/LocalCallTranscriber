@@ -278,6 +278,10 @@ Nuitka requieren exponer la misma ruta como include de sistema para resolver
 `_mingw_stdarg.h`. La variable se restaura al finalizar y no modifica PATH ni
 la configuración global del equipo.
 
+PySide6 6.8.3/Nuitka genera inicialmente `gui_main.exe` dentro del directorio
+standalone. El script de release lo renombra a `LocalCallTranscriber.exe` antes
+del smoke y de crear el manifiesto, de forma que el nombre público sea estable.
+
 El artefacto no incluye pesos Whisper ni datos de llamadas. El ejecutable
 empaquetado incorpora un modo interno `--package-smoke` usado únicamente para
 validación de release: genera un MP4 temporal y prueba la ruta real
