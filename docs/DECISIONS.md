@@ -178,3 +178,24 @@ El modo carpeta procesa sólo `*.mp4` del directorio indicado. Un archivo con sa
 Se evalúan dos opciones: un watcher persistente reaccionaría antes a archivos nuevos, pero requiere un proceso residente y gestión adicional de archivos todavía en copia. Windows Task Scheduler ejecuta periódicamente la CLI de carpeta ya validada, no requiere un servicio y deja logs por ejecución. Se adopta una tarea diaria configurable.
 
 **Motivo:** es la opción más simple y recuperable para el MVP; las salidas existentes impiden reprocesos accidentales entre ejecuciones.
+
+
+## D-022 — CLI permanente y apto para agentes
+
+**Estado:** Aceptada
+
+El CLI seguirá existiendo y disponible como interfaz de primer nivel aunque el proyecto incorpore una GUI. Debe ser utilizable por personas, scripts y agentes de IA con un contrato documentado de comandos, salidas y códigos de retorno.
+
+La GUI será una capa superior y compartirá la lógica de aplicación con el CLI. No se permitirá que la GUI reemplace el CLI ni que el CLI dependa de bibliotecas exclusivas de GUI.
+
+**Motivo:** conservar automatización, depuración, composición con otras herramientas y permitir solicitudes de agentes como "usa LocalCallTranscriber para extraer el texto de este MP4".
+
+## D-023 — PySide6 + Qt Widgets para la GUI de v0.2.0
+
+**Estado:** Aceptada
+
+La primera GUI desktop se implementará con PySide6 y Qt Widgets. La interfaz será básica y operacional: selección de archivo/carpeta y salida, perfiles rápido/calidad, idioma, hardware, VAD, timestamps por palabra, overwrite, estado de ejecución, errores y apertura de resultados.
+
+Los trabajos de transcripción no se ejecutarán en el hilo de eventos de Qt.
+
+**Motivo:** PySide6 permite una aplicación desktop nativa y mantenible sobre el backend Python existente, con threading/workers y una ruta posterior de empaquetado Windows, sin introducir una arquitectura web.
