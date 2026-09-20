@@ -22,6 +22,10 @@ Si dos documentos parecen contradecirse, no improvises: conserva el comportamien
 - El procesamiento de llamadas debe ser local; no subas audio, vídeo ni transcripciones a servicios externos.
 - Mantén siempre una ruta funcional en CPU aunque CUDA no esté disponible.
 - CUDA/GPU es una aceleración opcional, nunca un requisito para que la aplicación funcione.
+- El CLI es una interfaz permanente y de primer nivel. Ninguna GUI puede sustituirlo, ocultarlo ni convertirlo en una dependencia de la GUI.
+- Mantén el CLI apto para automatización por humanos, scripts y agentes de IA: comandos, opciones, outputs y códigos de salida deben estar documentados y ser predecibles.
+- La GUI debe ser una capa superior opcional sobre la misma lógica de aplicación que usa el CLI; no debe implementar un segundo pipeline ni requerir lanzar el CLI como subprocess para transcribir.
+- El funcionamiento del CLI no puede depender de que PySide6 u otras dependencias exclusivas de GUI estén instaladas.
 - No añadas al repositorio modelos, audios, vídeos, transcripciones, secretos, credenciales, `.venv`, caches ni otros archivos pesados.
 - No realices cambios globales del sistema, instalaciones de CUDA/cuDNN ni modificaciones de PATH salvo que la fase activa lo requiera expresamente.
 - Ejecuta las pruebas y verificaciones exigidas por los criterios de aceptación antes de considerar completada una fase.
