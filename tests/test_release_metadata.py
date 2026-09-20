@@ -43,3 +43,10 @@ def test_packaged_entrypoint_keeps_release_smoke_available() -> None:
     assert 'model="tiny"' in entrypoint
     assert 'device="cpu"' in entrypoint
     assert 'compute_type="int8"' in entrypoint
+
+
+def test_packaging_restores_the_versioned_deploy_spec() -> None:
+    package_script = (ROOT / "scripts" / "package_gui.ps1").read_text(encoding="utf-8")
+
+    assert "ReadAllBytes($specFile)" in package_script
+    assert "WriteAllBytes($specFile, $originalSpecBytes)" in package_script

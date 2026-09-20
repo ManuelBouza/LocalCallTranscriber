@@ -27,6 +27,7 @@ if (-not (Test-Path -LiteralPath $deployTool -PathType Leaf)) {
 if (-not (Test-Path -LiteralPath $specFile -PathType Leaf)) {
     throw "No se encontró la configuración de deploy: $specFile"
 }
+$originalSpecBytes = [IO.File]::ReadAllBytes($specFile)
 
 $installedVersion = & $venvPython -c 'import importlib.metadata; print(importlib.metadata.version("local-call-transcriber"))'
 if ($LASTEXITCODE -ne 0 -or $installedVersion.ToString().Trim() -ne $expectedVersion) {
@@ -116,5 +117,8 @@ try {
     Write-Host "Manifest: $manifestPath" -ForegroundColor Green
 }
 finally {
+    # pyside6-deploy normaliza rutas y reescribe el spec; la configuración
+    # versionada debe permanecer portable y el dry-run no debe ensuciar Git.
+    [IO.File]::WriteAllBytes($specFile, $originalSpecBytes)
     Pop-Location
 }
