@@ -172,3 +172,76 @@ Entregables:
 - tag de versión.
 
 Completado: release MVP `v0.1.0` con instalación desde clone limpio, uso, troubleshooting, changelog, dependencias fijadas y verificaciones finales. El tag se crea después de validar el clone limpio y la suite.
+
+
+# v0.2.0 — GUI desktop y CLI para agentes
+
+Las fases 0–8 corresponden al MVP v0.1.0 y permanecen cerradas. El trabajo siguiente es post-MVP.
+
+## Fase 9 — Contrato CLI y capa de aplicación compartida
+
+**Estado: NEXT**
+
+Objetivo: reforzar el CLI como interfaz permanente para humanos, scripts y agentes de IA antes de añadir la GUI.
+
+Entregables:
+- mantener compatibilidad con `python -m local_call_transcriber`;
+- añadir un entry point CLI nominal cómodo para automatización;
+- completar `--help`, códigos de salida y documentación de outputs;
+- validar `docs/CLI_AGENT_USAGE.md` con una fixture;
+- extraer la construcción/configuración de la operación a una capa de aplicación compartida;
+- garantizar que el core/CLI no depende de PySide6.
+
+No implementar todavía la ventana gráfica.
+
+## Fase 10 — GUI básica con PySide6
+
+**Estado: PENDING**
+
+Objetivo: añadir una ventana desktop simple sobre el backend existente.
+
+Entregables:
+- PySide6 + Qt Widgets como dependencia GUI separable;
+- selección de archivo MP4 o carpeta;
+- selección de directorio de salida;
+- perfiles Rápido (`large-v3-turbo`) y Calidad (`large-v3`);
+- idioma auto/es/en;
+- hardware Automático/GPU/CPU;
+- VAD, word timestamps y overwrite;
+- botón Transcribir;
+- visualización de resultado/error.
+
+La GUI debe usar la capa de aplicación compartida y no invocar el CLI como subprocess.
+
+## Fase 11 — Background, progreso y operación
+
+**Estado: PENDING**
+
+Objetivo: hacer la GUI segura y efectiva durante trabajos largos.
+
+Entregables:
+- worker/`QThreadPool` o equivalente Qt;
+- UI responsiva durante transcripción;
+- estado por archivo y progreso global de carpeta;
+- cancelación segura después del archivo actual;
+- panel de log/diagnóstico;
+- abrir carpeta de resultados;
+- pruebas de error, carpeta y fallback.
+
+No inventar porcentaje interno de inferencia mientras el engine no exponga progreso real.
+
+## Fase 12 — Release v0.2.0
+
+**Estado: PENDING**
+
+Objetivo: publicar la primera versión con GUI conservando el CLI como herramienta independiente.
+
+Entregables:
+- instalación limpia validada;
+- documentación CLI y GUI;
+- dependencias fijadas;
+- validación de empaquetado Windows;
+- suite completa verde;
+- auditoría de secretos/datos sensibles;
+- changelog/release notes;
+- tag de versión después de las verificaciones.
