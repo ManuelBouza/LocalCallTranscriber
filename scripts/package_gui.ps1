@@ -63,7 +63,7 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw "No se pudo preparar el compilador MinGW64 de Nuitka (código $LASTEXITCODE)."
         }
-        $mingwRoot = Split-Path -Parent (Split-Path -Parent $mingwGcc[-1].ToString().Trim())
+        $mingwRoot = Split-Path -Parent (Split-Path -Parent $mingwGcc.ToString().Trim())
         $mingwInclude = Join-Path $mingwRoot 'x86_64-w64-mingw32\include'
         if (-not (Test-Path -LiteralPath $mingwInclude -PathType Container)) {
             throw "No se encontró el directorio de cabeceras MinGW64 de Nuitka: $mingwInclude"

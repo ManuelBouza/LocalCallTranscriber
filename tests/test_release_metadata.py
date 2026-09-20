@@ -55,3 +55,4 @@ def test_packaging_restores_the_versioned_deploy_spec() -> None:
     assert "getCachedDownloadedMinGW64" in package_script
     assert "$env:C_INCLUDE_PATH = $mingwInclude" in package_script
     assert "$env:C_INCLUDE_PATH = $originalCIncludePath" in package_script
+    assert "$mingwGcc[-1]" not in package_script
