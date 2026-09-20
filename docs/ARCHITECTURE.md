@@ -220,3 +220,24 @@ archivo actual -> termina -> escribe outputs/log -> consulta cancelación
 No se intenta abortar CTranslate2 a mitad de una inferencia. El progreso mostrado
 por la GUI es progreso real por número de archivos. Para un único MP4 se utiliza
 estado indeterminado hasta que el engine exponga progreso interno verificable.
+
+
+## Distribución Windows
+
+La GUI de v0.2.0 se empaqueta con `pyside6-deploy` sobre PySide6 6.8.3 y
+Nuitka 2.6.8. La configuración versionada es `pysidedeploy.spec`.
+
+La primera release usa modo `standalone`:
+
+```text
+dist/
+  .../
+    LocalCallTranscriber.exe
+    dependencias Qt/Python/nativas
+  package-manifest.json
+```
+
+Los pesos de modelos no forman parte del artefacto. La caché de modelos conserva
+la ubicación externa ya usada por CLI y GUI. El entrypoint de deploy
+`deploy/gui_main.py` añade únicamente un modo interno `--package-smoke` para
+validar el artefacto; el uso normal abre la misma GUI de producción.
