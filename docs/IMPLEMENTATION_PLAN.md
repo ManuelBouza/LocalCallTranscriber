@@ -101,7 +101,7 @@ Completado: la CLI admite `--device cpu|cuda|auto`. `auto` intenta CUDA y vuelve
 
 ## Fase 5 — Benchmark y defaults
 
-**Estado: DONE**
+**Estado: NEXT**
 
 Objetivo: escoger defaults por evidencia sobre el equipo real.
 
@@ -122,7 +122,9 @@ Métricas:
 
 Resultado: documentar los defaults elegidos. No convertir una diferencia marginal en una regla universal.
 
-Completado: `scripts/benchmark.ps1` reproduce las comparaciones con una fixture MP4 temporal local y conserva el JSON fuera de Git. En la RTX 2060, `large-v3-turbo` con CUDA `float16` obtuvo RTF 0.284 (batch 1); se adopta como default. CPU `int8` permanece como fallback obligatorio.
+Implementación inicial publicada en `126d519c354e6bbc70a0dae3b37ad07262248b3e`.
+
+Auditoría pendiente: resolver [issue #4](https://github.com/ManuelBouza/LocalCallTranscriber/issues/4) para medir el mismo pipeline usado por la CLI y validar los defaults con una muestra local de voz antes de cerrar la fase.
 
 ## Fase 6 — Procesamiento por carpeta
 
