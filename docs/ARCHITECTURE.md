@@ -8,6 +8,29 @@
 - GPU opcional y degradación limpia a CPU.
 - Separar motor, configuración, entradas/salidas y automatización.
 - Mantener `faster-whisper` detrás de una interfaz propia para evitar acoplamiento innecesario.
+- Mantener el CLI como interfaz permanente, estable y automatizable.
+- Tratar la GUI como una capa opcional de presentación, nunca como reemplazo del CLI.
+
+## Interfaces de usuario y automatización
+
+La arquitectura post-MVP debe conservar una sola lógica de aplicación compartida:
+
+```text
+CLI ─────┐
+         ├──> Application/service layer ──> orchestration ──> engine ──> outputs
+GUI ─────┘
+```
+
+Reglas:
+
+- el CLI continúa siendo una interfaz de primer nivel;
+- la GUI no implementa un segundo pipeline;
+- la GUI no debe lanzar el CLI como subprocess para ejecutar una transcripción normal;
+- CLI y GUI construyen las mismas solicitudes/configuraciones y llaman a la misma capa de aplicación;
+- las dependencias exclusivas de GUI no deben ser necesarias para ejecutar el CLI;
+- `docs/CLI_AGENT_USAGE.md` define el uso del CLI como herramienta para agentes de IA.
+
+La GUI seleccionada para v0.2.0 es **PySide6 + Qt Widgets**. Los trabajos largos se ejecutarán fuera del hilo de eventos de Qt mediante workers/`QThreadPool` o un mecanismo equivalente de Qt.
 
 ## Flujo principal
 
@@ -41,6 +64,7 @@ TranscriptResult
 ```text
 src/local_call_transcriber/
   cli.py
+  application.py
   config.py
   domain.py
   hardware.py
@@ -49,11 +73,18 @@ src/local_call_transcriber/
   engines/
     base.py
     faster_whisper.py
+  gui/
+    __init__.py
+    __main__.py
+    main_window.py
+    workers.py
 ```
 
 La estructura exacta puede evolucionar si mejora la cohesión, pero deben conservarse las siguientes fronteras:
 
-- `cli`: parsing y presentación, sin lógica pesada.
+- `cli`: parsing y presentación CLI, sin lógica pesada; contrato permanente para humanos/scripts/agentes.
+- `application`: construcción de solicitudes, configuración efectiva y servicios compartidos por CLI y GUI.
+- `gui`: presentación Qt Widgets y coordinación de workers; no contiene lógica de transcripción duplicada.
 - `config`: lectura/validación TOML y defaults.
 - `domain`: modelos de datos independientes del motor.
 - `hardware`: detección de CPU/CUDA y compute types.
