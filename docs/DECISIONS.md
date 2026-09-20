@@ -236,3 +236,22 @@ El flujo de desarrollo post-MVP asigna a ChatGPT el diseño y la implementación
 Codex conserva libertad técnica para ajustar la solución si la evidencia local lo justifica, pero debe respetar el alcance de la fase activa y no implementar trabajo futuro innecesario. Tras su validación o correcciones, ChatGPT realiza la auditoría final antes de avanzar el plan.
 
 **Motivo:** concentrar en Codex las tareas donde su acceso al entorno local aporta más valor y reducir el consumo de contexto/tokens en diseño e implementación que pueden realizarse previamente desde ChatGPT.
+
+
+## D-027 — Progreso por archivo y cancelación cooperativa
+
+**Estado:** Aceptada
+
+La GUI ejecuta `TranscriptionApplication` mediante un worker Qt en
+`QThreadPool`. La capa de aplicación/orchestration expone callbacks neutrales
+de inicio y fin de archivo y una consulta de cancelación, sin introducir una
+dependencia Qt en el core.
+
+El progreso de carpeta se calcula únicamente con archivos realmente iniciados y
+terminados. Un MP4 individual usa progreso indeterminado. La cancelación se
+aplica entre archivos: el archivo actualmente en inferencia termina y se
+conservan sus salidas antes de detener el lote.
+
+**Motivo:** mantiene la ventana responsiva y evita afirmar un porcentaje interno
+que faster-whisper/CTranslate2 no proporciona de forma fiable, a la vez que
+preserva resultados válidos ante una cancelación.
