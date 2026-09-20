@@ -276,3 +276,10 @@ Entregables:
 - auditoría de secretos/datos sensibles;
 - changelog/release notes;
 - tag de versión después de las verificaciones.
+
+Implementación inicial de ChatGPT publicada: metadata `0.2.0`, changelog y
+release notes, configuración `pyside6-deploy` standalone, entrypoint de deploy
+con smoke real CPU, scripts de packaging/auditoría y pruebas de metadata. La fase
+permanece `NEXT` hasta que Codex complete desde un clone limpio
+`docs/PHASE12_VALIDATION.md` y ChatGPT audite el resultado. El tag
+`v0.2.0` no debe existir todavía.
