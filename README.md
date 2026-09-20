@@ -121,3 +121,13 @@ La combinación validada en este equipo es CUDA Toolkit 12.6, cuDNN 9.11.0.98 pa
 ```powershell
 .\.venv\Scripts\python.exe -m local_call_transcriber .\llamada.mp4 --device auto --compute-type auto
 ```
+
+## Benchmark reproducible
+
+La Fase 5 añade un benchmark local que genera una fixture MP4 temporal y guarda el JSON fuera de Git en `%LOCALAPPDATA%\LocalCallTranscriber\benchmarks`:
+
+```powershell
+.\scripts\benchmark.ps1
+```
+
+Compara `large-v3` y `large-v3-turbo` en CPU `int8` y GPU `float16`/`int8_float16`, con batches 1 y 4. Registra duración, carga, transcripción, RTF, RAM/VRAM cuando el controlador los expone y la observación de calidad de la fixture controlada.

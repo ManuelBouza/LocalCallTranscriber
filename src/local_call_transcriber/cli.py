@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Transcribe un MP4 local con faster-whisper.")
     parser.add_argument("input", type=Path, help="Archivo MP4 local")
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
-    parser.add_argument("--model", default="tiny", help="Modelo faster-whisper a descargar localmente")
+    parser.add_argument("--model", default="large-v3-turbo", help="Modelo faster-whisper a descargar localmente")
     parser.add_argument("--language", default=None, help="Idioma ISO, por ejemplo es o en; omite para auto")
     parser.add_argument("--device", choices=DEVICE_CHOICES, default="auto")
     parser.add_argument("--compute-type", choices=COMPUTE_TYPE_CHOICES, default="auto")

@@ -152,3 +152,13 @@ Las salidas SRT y VTT se generan junto a TXT y JSON, ordenadas por timestamp ini
 La ruta GPU usa CUDA Toolkit 12.6, cuDNN 9.11.0.98 para CUDA 12, faster-whisper 1.2.1 y CTranslate2 4.8.2. `device=cuda` devuelve un error con instrucciones de diagnóstico cuando no puede inicializarse. `device=auto` intenta CUDA y, si falla durante la inicialización, continúa en CPU con `int8` y muestra un aviso. Se validaron transcripciones reales locales en una RTX 2060 con `float16` e `int8_float16`.
 
 **Motivo:** la aceleración es útil pero nunca puede impedir el funcionamiento CPU. Las DLL se añaden sólo al proceso para evitar depender de que una terminal herede cambios de PATH.
+
+## D-019 — Default basado en benchmark local
+
+**Estado:** Aceptada
+
+El default es `large-v3-turbo`, `device=auto` y `compute_type=auto` (CUDA `float16` cuando está disponible; CPU `int8` como fallback). El benchmark reproducible de Fase 5 usó una fixture MP4 de silencio local de 1.088 s y comparó ambos modelos, CPU `int8`, GPU `float16`/`int8_float16` y batches 1/4. En la RTX 2060, el mejor RTF de batch 1 fue `large-v3-turbo` CUDA `float16`: 0.284; `large-v3` GPU fue 0.311 como mínimo y CPU fue 9.743–11.457.
+
+La fixture no mide calidad lingüística: verifica correctamente ausencia de habla (0 segmentos). Por ello esta decisión es de rendimiento y capacidad; deberá reevaluarse con un conjunto de llamadas controlado antes de afirmar una diferencia de calidad entre modelos.
+
+**Motivo:** `large-v3-turbo` reduce el tiempo de proceso y carga manteniendo el perfil rápido previsto. El fallback CPU conserva la disponibilidad sin CUDA.

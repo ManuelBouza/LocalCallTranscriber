@@ -42,6 +42,7 @@ recordings/
 input/
 output/
 transcripts/
+benchmarks/
 *.mp4
 *.m4a
 *.mp3
