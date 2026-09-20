@@ -3,6 +3,7 @@
 
 import os
 import time
+from collections.abc import Callable
 from pathlib import Path
 from threading import Event
 
@@ -52,17 +53,17 @@ def qapp() -> QApplication:
 
 def wait_until(
     qapp: QApplication,
-    predicate: object,
+    predicate: Callable[[], bool],
     timeout: float = 3.0,
 ) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         qapp.processEvents()
-        if predicate():  # type: ignore[operator]
+        if predicate():
             return
         time.sleep(0.01)
     qapp.processEvents()
-    assert predicate()  # type: ignore[operator]
+    assert predicate()
 
 
 def test_gui_translates_all_simple_controls_to_core_request(
