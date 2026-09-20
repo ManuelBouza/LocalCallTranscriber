@@ -158,7 +158,7 @@ Completado: se eligió Windows Task Scheduler frente a watcher persistente (D-02
 
 ## Fase 8 — Release MVP
 
-**Estado: NEXT**
+**Estado: DONE**
 
 Objetivo: dejar una versión pública reproducible.
 
@@ -170,3 +170,5 @@ Entregables:
 - ejemplos sin datos sensibles;
 - changelog/release notes;
 - tag de versión.
+
+Completado: release MVP `v0.1.0` con instalación desde clone limpio, uso, troubleshooting, changelog, dependencias fijadas y verificaciones finales. El tag se crea después de validar el clone limpio y la suite.

@@ -4,7 +4,7 @@ Aplicación local para Windows 11 orientada a la transcripción de archivos de l
 
 ## Estado
 
-El proyecto está en fase de especificación e implementación incremental.
+MVP `v0.1.0`: listo para Windows 11 nativo con PowerShell. El procesamiento es local; CPU funciona sin CUDA y GPU es opcional.
 
 La primera integración prevista es `faster-whisper`. La estructura del proyecto permitirá incorporar otros motores posteriormente sin rehacer la aplicación.
 
@@ -18,6 +18,19 @@ La fase activa se mantiene en [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_
 - funcionamiento en CPU como ruta obligatoria
 - CUDA opcional cuando el hardware y las dependencias sean compatibles
 - sin WSL ni Docker
+
+## Instalación desde un clone limpio
+
+En PowerShell, instala CPython 3.11.x y Git. Clona el repositorio y prepara exclusivamente el entorno local `.venv`:
+
+```powershell
+git clone https://github.com/ManuelBouza/LocalCallTranscriber.git
+Set-Location .\LocalCallTranscriber
+.\scripts\bootstrap.ps1
+.\scripts\test.ps1
+```
+
+El primer uso descarga el modelo seleccionado a `%LOCALAPPDATA%\LocalCallTranscriber\models`. No se descarga ni se sube audio, vídeo o transcripciones a ningún servicio.
 
 ## Documentación del proyecto
 
@@ -165,3 +178,11 @@ Para deshabilitarla, elimina la tarea:
 ```powershell
 .\scripts\unregister_folder_task.ps1
 ```
+
+## Troubleshooting
+
+- **No se encontró CPython 3.11:** instala Python con `py install 3.11` y ejecuta de nuevo `bootstrap.ps1`.
+- **CUDA no es utilizable:** ejecuta `./scripts/doctor.ps1`. La aplicación sigue siendo usable con `--device cpu --compute-type int8`.
+- **El modelo tarda o falla al descargarse:** verifica red y espacio libre; el modelo se guarda localmente fuera del repositorio.
+- **Una llamada se omite al procesar carpeta:** ya existen salidas. Revisa `folder-run.jsonl`; usa `--overwrite` sólo si quieres sustituirlas.
+- **La tarea diaria no se ejecuta:** prueba primero `run_folder_task.ps1` manualmente y revisa `automation.log` en el directorio de salida.
