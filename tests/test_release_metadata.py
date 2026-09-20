@@ -32,6 +32,7 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--noinclude-qt-translations=" not in extra_args
     assert "--windows-console-mode=disable" in extra_args
     assert "--include-package=local_call_transcriber" in extra_args
+    assert "--include-package=av" in extra_args
     assert "--include-package=faster_whisper" in extra_args
     assert "--include-package=ctranslate2" in extra_args
 
