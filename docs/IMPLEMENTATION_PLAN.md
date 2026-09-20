@@ -229,7 +229,7 @@ implementado workers, progreso ni cancelación, que pertenecen a Fase 11.
 
 ## Fase 11 — Background, progreso y operación
 
-**Estado: PENDING**
+**Estado: NEXT**
 
 Objetivo: hacer la GUI segura y efectiva durante trabajos largos.
 
