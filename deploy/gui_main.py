@@ -1,12 +1,10 @@
 """Entrypoint usado exclusivamente para construir y validar el paquete Windows."""
 
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
-
-import av
-import numpy as np
 
 from local_call_transcriber.application import (
     FileTranscriptionRun,
@@ -15,35 +13,25 @@ from local_call_transcriber.application import (
 )
 from local_call_transcriber.gui.__main__ import main as gui_main
 
-
-def _create_silent_mp4(destination: Path) -> None:
-    """Genera una fixture temporal local sin versionar multimedia."""
-    container = av.open(str(destination), mode="w")
-    stream = container.add_stream("aac", rate=16_000)
-    stream.layout = "mono"
-    for _ in range(16):
-        frame = av.AudioFrame.from_ndarray(
-            np.zeros((1, 1024), dtype=np.int16),
-            format="s16",
-            layout="mono",
-        )
-        frame.sample_rate = 16_000
-        for packet in stream.encode(frame):
-            container.mux(packet)
-    for packet in stream.encode(None):
-        container.mux(packet)
-    container.close()
+PACKAGE_SMOKE_INPUT_ENV = "LOCALCALLTRANSCRIBER_PACKAGE_SMOKE_INPUT"
 
 
 def package_smoke() -> int:
-    """Valida dentro del paquete la ruta CPU real y los cuatro outputs."""
+    """Valida dentro del paquete la ruta CPU real usando un MP4 creado externamente."""
+    source_value = os.environ.get(PACKAGE_SMOKE_INPUT_ENV)
+    if not source_value:
+        raise RuntimeError(
+            f"Falta {PACKAGE_SMOKE_INPUT_ENV}; el fixture del smoke debe generarse fuera del paquete."
+        )
+
+    source = Path(source_value)
+    if not source.is_file():
+        raise RuntimeError(f"No existe el MP4 del package smoke: {source}")
+
     with tempfile.TemporaryDirectory(
         prefix="local-call-transcriber-package-smoke-"
     ) as temporary_directory:
-        root = Path(temporary_directory)
-        source = root / "smoke.mp4"
-        output_dir = root / "output"
-        _create_silent_mp4(source)
+        output_dir = Path(temporary_directory) / "output"
 
         run = TranscriptionApplication().run(
             TranscriptionRequest(
