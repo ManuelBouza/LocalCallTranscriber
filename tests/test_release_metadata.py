@@ -35,11 +35,9 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--include-module=av." not in extra_args
     assert "--include-package=faster_whisper" in extra_args
     assert "--include-package=ctranslate2" in extra_args
-    assert "--include-module=huggingface_hub.utils._headers" in extra_args
-    assert "--include-module=huggingface_hub.utils._fixes" in extra_args
-    assert "--include-module=huggingface_hub.utils._validators" in extra_args
-    assert "--include-module=huggingface_hub.utils.logging" in extra_args
-    assert "--include-package=huggingface_hub.utils" not in extra_args
+    assert "--include-package=huggingface_hub.utils" in extra_args
+    assert "--include-package=huggingface_hub " not in extra_args
+    assert "--include-module=huggingface_hub.utils." not in extra_args
 
 
 def test_packaged_entrypoint_uses_external_smoke_fixture() -> None:
