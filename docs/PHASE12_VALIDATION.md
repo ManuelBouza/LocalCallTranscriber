@@ -48,7 +48,8 @@ Todo debe quedar verde.
 La ruta elegida es `pyside6-deploy`/Nuitka 4.2.1 en modo `standalone`.
 No deben aparecer los workarounds retirados de Nuitka 2.6.8:
 `--disable-cache=ccache`, `--include-package=numpy` ni includes manuales
-`av.*`.
+`av.*`. La configuración debe incluir `--include-package=huggingface_hub.utils`
+y no debe incluir `--include-package=huggingface_hub` completo.
 
 Si `dumpbin.exe` no está disponible, registra el warning. No instales MSVC ni
 modifiques el sistema.
