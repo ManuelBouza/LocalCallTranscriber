@@ -26,6 +26,7 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert config["nuitka"]["mode"] == "standalone"
 
     extra_args = config["nuitka"]["extra_args"]
+    extra_arg_tokens = extra_args.split()
     assert "--assume-yes-for-downloads" in extra_args
     assert "--disable-cache=ccache" not in extra_args
     assert "--noinclude-qt-translations" in extra_args
@@ -35,8 +36,8 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--include-module=av." not in extra_args
     assert "--include-package=faster_whisper" in extra_args
     assert "--include-package=ctranslate2" in extra_args
-    assert "--include-package=huggingface_hub.utils" in extra_args
-    assert "--include-package=huggingface_hub " not in extra_args
+    assert "--include-package=huggingface_hub.utils" in extra_arg_tokens
+    assert "--include-package=huggingface_hub" not in extra_arg_tokens
     assert "--include-module=huggingface_hub.utils." not in extra_args
 
 
