@@ -40,17 +40,19 @@ El flujo normal del proyecto es:
 
 1. ChatGPT diseña la solución y realiza la implementación inicial del código, tests y documentación de la fase activa.
 2. ChatGPT hace commit/push de esa implementación en GitHub.
-3. Codex sincroniza `origin/main` y actúa principalmente como **verificador local y corrector** en el equipo Windows real.
+3. Codex sincroniza `origin/main` y actúa por defecto como **verificador local de solo validación** en el equipo Windows real.
 4. Codex ejecuta las pruebas automatizadas y las verificaciones locales aplicables, incluida la aplicación real cuando el criterio requiera comportamiento que no puede validarse sólo por inspección.
-5. Codex tiene libertad para modificar código, tests y documentación cuando sea necesario para que la tarea y sus criterios de aceptación se cumplan correctamente.
-6. Codex debe conservar el alcance de la fase activa y evitar rediseños o trabajo futuro no necesario.
-7. Si realiza ajustes, Codex revisa el diff, hace commit/push y reporta exactamente qué validó y qué cambió.
-8. ChatGPT audita el resultado publicado contra los criterios y decide si corresponde avanzar la siguiente fase.
+5. Si Codex encuentra un defecto que exige modificar código, tests, configuración o documentación, debe detener esa parte de la validación, reportar la evidencia y proponer la corrección. **No modifica el repositorio salvo que el prompt de esa ejecución lo autorice expresamente.**
+6. ChatGPT implementa normalmente las correcciones derivadas de la evidencia local y publica una nueva revisión.
+7. Codex revalida la revisión publicada.
+8. ChatGPT audita la evidencia final contra los criterios y decide si corresponde avanzar la siguiente fase.
 
 ### Prioridad operativa de Codex
 
-Codex no debe rehacer por defecto el trabajo de diseño ya implementado por ChatGPT. Su prioridad es obtener evidencia local de que la solución funciona y corregir únicamente lo necesario.
+Codex no debe rehacer por defecto el trabajo de diseño o implementación ya realizado por ChatGPT. Su prioridad es obtener evidencia local reproducible: ejecutar, observar, diagnosticar y reportar.
 
-Puede apartarse de la implementación de ChatGPT cuando las pruebas, el comportamiento real de Windows, la mantenibilidad o los criterios de aceptación demuestren que un ajuste es pertinente.
+La autorización para corregir no se hereda de sesiones anteriores ni se presume por el hecho de encontrar un fallo. Debe aparecer explícitamente en el prompt activo.
 
-El objetivo de este reparto es reservar el contexto y los tokens de Codex para aquello que aporta valor diferencial: ejecución local, interacción con la aplicación, diagnóstico real, pruebas y correcciones.
+Para operaciones largas que puedan desacoplarse, especialmente builds de packaging, Codex no debe permanecer esperando su finalización. Debe utilizar el mecanismo versionado de ejecución desacoplada, reportar PID/rutas de estado y log, y terminar el turno. La inspección posterior se reanuda únicamente cuando el usuario confirme que el proceso terminó.
+
+El objetivo de este reparto es reservar el contexto y los tokens de Codex para aquello que aporta valor diferencial: ejecución local, interacción con la aplicación, diagnóstico y evidencia verificable.
