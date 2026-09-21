@@ -132,6 +132,7 @@ turno posterior, después de confirmación del usuario, completa:
 - Ruff/pip check;
 - dry-run/preflight;
 - PID/rutas de estado y log;
+- `powershell_edition` y `powershell_version` registrados por el worker;
 - estado final del build;
 - package smoke;
 - manifest;
