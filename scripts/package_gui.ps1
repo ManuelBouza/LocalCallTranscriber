@@ -111,7 +111,7 @@ if ($buildDependencyProbe.ExitCode -ne 0) {
 
 $mingwProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
     '-c',
-    'from nuitka.utils.Download import getCachedDownloadedMinGW64; print(getCachedDownloadedMinGW64("x86_64", True, True))'
+    "from nuitka.utils.Download import getCachedDownloadedMinGW64; print(getCachedDownloadedMinGW64('x86_64', True, True))"
 )
 if ($mingwProbe.ExitCode -ne 0 -or $mingwProbe.Output.Count -eq 0) {
     throw 'No se pudo resolver el MinGW64 soportado por Nuitka.'
