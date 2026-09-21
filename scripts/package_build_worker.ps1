@@ -28,6 +28,8 @@ function Write-BuildStatus {
         state = $State
         pid = $PID
         command = '.\scripts\package_gui.ps1'
+        powershell_edition = $PSVersionTable.PSEdition
+        powershell_version = $PSVersionTable.PSVersion.ToString()
         started_at = $startedAt
         finished_at = if ($State -eq 'RUNNING') { $null } else { (Get-Date).ToUniversalTime().ToString('o') }
         exit_code = $ExitCode
