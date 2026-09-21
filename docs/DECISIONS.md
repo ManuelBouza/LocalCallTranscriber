@@ -229,7 +229,7 @@ evita introducir una solución parcial de threading fuera de su alcance.
 
 ## D-026 — ChatGPT implementa; Codex valida y corrige localmente
 
-**Estado:** Aceptada
+**Estado:** Sustituida parcialmente por D-031
 
 El flujo de desarrollo post-MVP asigna a ChatGPT el diseño y la implementación inicial de cada fase. Codex se utiliza después como verificador sobre el equipo Windows real: sincroniza la implementación, ejecuta tests y pruebas operativas, inspecciona la aplicación y corrige código, tests o documentación cuando sea necesario para satisfacer la tarea.
 
@@ -259,7 +259,7 @@ preserva resultados válidos ante una cancelación.
 
 ## D-028 — pyside6-deploy standalone para la primera distribución GUI
 
-**Estado:** Aceptada
+**Estado:** Sustituida parcialmente por D-030
 
 La primera distribución Windows de la GUI usa `pyside6-deploy` de PySide6
 6.8.3 con Nuitka 2.6.8 en modo `standalone`. La configuración vive en
