@@ -58,13 +58,17 @@ def test_packaged_entrypoint_uses_external_smoke_fixture() -> None:
     assert 'compute_type="int8"' in entrypoint
 
 
-def test_packaging_restores_spec_and_avoids_old_mingw_workaround() -> None:
+def test_packaging_restores_spec_and_prepares_supported_mingw_include() -> None:
     package_script = (ROOT / "scripts" / "package_gui.ps1").read_text(encoding="utf-8")
 
     assert "ReadAllBytes($specFile)" in package_script
     assert "WriteAllBytes($specFile, $originalSpecBytes)" in package_script
-    assert "getCachedDownloadedMinGW64" not in package_script
-    assert "C_INCLUDE_PATH" not in package_script
+    assert "getCachedDownloadedMinGW64" in package_script
+    assert "nuitka==4.2.1" in package_script
+    assert "x86_64-w64-mingw32\\include" in package_script
+    assert "psdk_inc\\intrin-impl.h" in package_script
+    assert "$originalCIncludePath = $env:C_INCLUDE_PATH" in package_script
+    assert "$env:C_INCLUDE_PATH = $originalCIncludePath" in package_script
     assert "gui_main.exe" in package_script
     assert "Rename-Item" in package_script
 
