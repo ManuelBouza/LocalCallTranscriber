@@ -87,3 +87,12 @@ def test_detached_package_build_has_observable_state() -> None:
     assert "BUILD_SUCCESS" in status
     assert "BUILD_FAILED" in status
     assert "BUILD_STATE_UNKNOWN" in status
+    assert "pwsh.exe" in starter
+    assert "powershell.exe" in starter
+    assert "powershell_edition" in worker
+    assert "powershell_version" in worker
+
+    package_script = (ROOT / "scripts" / "package_gui.ps1").read_text(encoding="utf-8")
+    assert "Invoke-NativeCaptured" in package_script
+    assert "$ErrorActionPreference = 'Continue'" in package_script
+    assert "from importlib.metadata import version" in package_script
