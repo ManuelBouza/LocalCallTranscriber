@@ -369,3 +369,30 @@ build terminó.
 **Motivo:** separar compilación de razonamiento evita consumo de tokens durante
 trabajo de CPU/C++ que no requiere intervención del agente y vuelve explícito el
 punto de control entre evidencia y corrección.
+
+
+## D-032 — Worker desacoplado compatible con PowerShell 5.1 y 7
+
+**Estado:** Aceptada
+
+El starter del build desacoplado reutiliza PowerShell 7 (`pwsh.exe`) cuando la
+sesión actual ya se ejecuta sobre PowerShell Core o cuando `pwsh.exe` está
+disponible. Sólo cae a `powershell.exe` cuando no existe PowerShell 7.
+
+Los comandos nativos críticos de `package_gui.ps1` no confían en
+`$ErrorActionPreference='Stop'` para determinar éxito o fracaso. Durante su
+ejecución se permite que `stderr` permanezca visible/loggable y se decide el
+resultado mediante `$LASTEXITCODE`. Las consultas `python -c` usan argumentos
+que no dependen del tratamiento histórico de comillas dobles de Windows
+PowerShell.
+
+El worker persiste además la edición y versión de PowerShell utilizada en
+`build-status.json`.
+
+**Motivo:** el primer worker desacoplado falló antes de Nuitka al ejecutar una
+consulta Python que funcionaba en la sesión interactiva. El worker forzaba
+`powershell.exe`, mientras Windows PowerShell 5.1 y PowerShell 7 difieren en el
+tratamiento de `stderr` de comandos nativos y en el paso de argumentos. La
+documentación de Microsoft confirma que PowerShell 7 corrigió que
+`$ErrorActionPreference` afectase a `stderr` de comandos nativos. El cambio
+elimina esa dependencia y conserva compatibilidad de fallback con 5.1.
