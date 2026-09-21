@@ -18,6 +18,7 @@ $smokeFixtureScript = Join-Path $repositoryRoot 'deploy\create_package_smoke_fix
 $expectedVersion = '0.2.0'
 $smokeInputVariable = 'LOCALCALLTRANSCRIBER_PACKAGE_SMOKE_INPUT'
 $originalSmokeInput = [Environment]::GetEnvironmentVariable($smokeInputVariable, 'Process')
+$originalCIncludePath = $env:C_INCLUDE_PATH
 
 function Invoke-NativeCaptured {
     param(
@@ -94,6 +95,46 @@ if ($qtProbe.ExitCode -ne 0 -or $qtVersion -ne '6.8.3') {
 if ($null -eq (Get-Command dumpbin.exe -ErrorAction SilentlyContinue)) {
     Write-Warning 'dumpbin.exe no está en PATH. Qt recomienda MSVC/dumpbin para analizar eficientemente dependencias en Windows.'
 }
+
+# pyside6-deploy usa el Nuitka fijado en pysidedeploy.spec. Se prepara
+# explícitamente esa misma versión antes de consultar el WinLibs soportado.
+$buildDependencyProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
+    '-m', 'pip', 'install',
+    'nuitka==4.2.1',
+    'ordered_set',
+    'zstandard'
+)
+$buildDependencyProbe.Output | ForEach-Object { Write-Host $_ }
+if ($buildDependencyProbe.ExitCode -ne 0) {
+    throw "No se pudieron preparar las dependencias de build de Nuitka (código $($buildDependencyProbe.ExitCode))."
+}
+
+$mingwProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
+    '-c',
+    'from nuitka.utils.Download import getCachedDownloadedMinGW64; print(getCachedDownloadedMinGW64("x86_64", True, True))'
+)
+if ($mingwProbe.ExitCode -ne 0 -or $mingwProbe.Output.Count -eq 0) {
+    throw 'No se pudo resolver el MinGW64 soportado por Nuitka.'
+}
+$mingwGcc = ($mingwProbe.Output | Select-Object -Last 1).ToString().Trim()
+if (-not (Test-Path -LiteralPath $mingwGcc -PathType Leaf)) {
+    throw "Nuitka devolvió un gcc.exe inexistente: $mingwGcc"
+}
+
+$mingwRoot = Split-Path -Parent (Split-Path -Parent $mingwGcc)
+$mingwInclude = Join-Path $mingwRoot 'x86_64-w64-mingw32\include'
+$intrinImpl = Join-Path $mingwInclude 'psdk_inc\intrin-impl.h'
+if (-not (Test-Path -LiteralPath $intrinImpl -PathType Leaf)) {
+    throw "El WinLibs de Nuitka no contiene la cabecera requerida: $intrinImpl"
+}
+
+if ([string]::IsNullOrWhiteSpace($originalCIncludePath)) {
+    $env:C_INCLUDE_PATH = $mingwInclude
+}
+else {
+    $env:C_INCLUDE_PATH = "$mingwInclude;$originalCIncludePath"
+}
+Write-Host "MinGW include temporal: $mingwInclude"
 
 Push-Location $repositoryRoot
 try {
@@ -205,6 +246,7 @@ try {
 finally {
     [IO.File]::WriteAllBytes($specFile, $originalSpecBytes)
     [Environment]::SetEnvironmentVariable($smokeInputVariable, $originalSmokeInput, 'Process')
+    $env:C_INCLUDE_PATH = $originalCIncludePath
     if (Test-Path -LiteralPath $smokeWorkspace) {
         Remove-Item -LiteralPath $smokeWorkspace -Recurse -Force
     }
