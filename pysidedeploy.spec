@@ -18,4 +18,4 @@ plugins = platforms
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --assume-yes-for-downloads --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=faster_whisper --include-package=ctranslate2 --include-module=huggingface_hub.utils._headers --include-module=huggingface_hub.utils._fixes --include-module=huggingface_hub.utils._validators --include-module=huggingface_hub.utils.logging
+extra_args = --quiet --assume-yes-for-downloads --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=faster_whisper --include-package=ctranslate2 --include-package=huggingface_hub.utils
