@@ -95,6 +95,8 @@ def test_detached_package_build_has_observable_state() -> None:
     assert "powershell.exe" in starter
     assert "powershell_edition" in worker
     assert "powershell_version" in worker
+    assert "PS edition:" in status
+    assert "PS version:" in status
 
     package_script = (ROOT / "scripts" / "package_gui.ps1").read_text(encoding="utf-8")
     assert "Invoke-NativeCaptured" in package_script
