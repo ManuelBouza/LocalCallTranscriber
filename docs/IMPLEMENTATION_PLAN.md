@@ -283,3 +283,9 @@ con smoke real CPU, scripts de packaging/auditoría y pruebas de metadata. La fa
 permanece `NEXT` hasta que Codex complete desde un clone limpio
 `docs/PHASE12_VALIDATION.md` y ChatGPT audite el resultado. El tag
 `v0.2.0` no debe existir todavía.
+
+La primera validación local de packaging se interrumpió tras detectar una cadena
+de problemas específicos de Nuitka 2.6.8 y recompilaciones largas. La revisión
+adopta Nuitka 4.2.1, simplifica las inclusiones y añade un build desacoplado
+observable. La Fase 12 sigue en estado `NEXT`: estas correcciones requieren una
+nueva validación limpia antes de crear el tag.
