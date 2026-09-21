@@ -67,7 +67,12 @@ $versionProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
     '-c',
     "from importlib.metadata import version; print(version('local-call-transcriber'))"
 )
-$installedVersion = ($versionProbe.Output | Select-Object -Last 1).ToString().Trim()
+$installedVersion = if ($versionProbe.Output.Count -gt 0) {
+    ($versionProbe.Output | Select-Object -Last 1).ToString().Trim()
+}
+else {
+    ''
+}
 if ($versionProbe.ExitCode -ne 0 -or $installedVersion -ne $expectedVersion) {
     throw "La .venv no contiene LocalCallTranscriber $expectedVersion. Ejecuta .\scripts\bootstrap.ps1 -WithGui después de sincronizar el repositorio."
 }
@@ -76,7 +81,12 @@ $qtProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
     '-c',
     'import PySide6; print(PySide6.__version__)'
 )
-$qtVersion = ($qtProbe.Output | Select-Object -Last 1).ToString().Trim()
+$qtVersion = if ($qtProbe.Output.Count -gt 0) {
+    ($qtProbe.Output | Select-Object -Last 1).ToString().Trim()
+}
+else {
+    ''
+}
 if ($qtProbe.ExitCode -ne 0 -or $qtVersion -ne '6.8.3') {
     throw 'La ruta de release requiere PySide6 6.8.3.'
 }
@@ -103,10 +113,17 @@ try {
         $deployArguments += '--keep-deployment-files'
     }
 
-    $deployProbe = Invoke-NativeCaptured -FilePath $deployTool -Arguments $deployArguments
-    $deployProbe.Output | ForEach-Object { Write-Host $_ }
-    if ($deployProbe.ExitCode -ne 0) {
-        throw "pyside6-deploy falló con código $($deployProbe.ExitCode)."
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        & $deployTool @deployArguments | ForEach-Object { Write-Host $_ }
+        $deployExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($deployExitCode -ne 0) {
+        throw "pyside6-deploy falló con código $deployExitCode."
     }
 
     if ($DryRun) {
