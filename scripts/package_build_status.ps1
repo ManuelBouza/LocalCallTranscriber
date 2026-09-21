@@ -34,6 +34,8 @@ switch ($effectiveState) {
 
 Write-Host "State:      $effectiveState"
 Write-Host "PID:        $($status.pid)"
+Write-Host "PS edition: $($status.powershell_edition)"
+Write-Host "PS version: $($status.powershell_version)"
 Write-Host "Started:    $($status.started_at)"
 Write-Host "Finished:   $($status.finished_at)"
 Write-Host "Exit code:  $($status.exit_code)"
