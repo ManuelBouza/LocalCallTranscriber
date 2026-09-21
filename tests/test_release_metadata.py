@@ -56,7 +56,9 @@ def test_packaged_entrypoint_uses_external_smoke_fixture() -> None:
     assert "import numpy as np" in fixture
     assert "import av" in fixture
     assert "create_package_smoke_fixture.py" in package_script
-    assert "Start-Process -FilePath $executable.FullName" in package_script
+    assert "Start-Process" in package_script
+    assert "-FilePath $executable.FullName" in package_script
+    assert "-ArgumentList '--package-smoke'" in package_script
     assert "-Wait" in package_script
     assert "-PassThru" in package_script
     assert "-RedirectStandardOutput $smokeStdout" in package_script
