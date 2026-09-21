@@ -1,6 +1,6 @@
 # Plan de implementación
 
-Este documento define el orden obligatorio de trabajo. La implementación inicial de la fase `NEXT` corresponde normalmente a ChatGPT; Codex verifica y corrige esa implementación en el equipo local conforme a `AGENTS.md`. Ningún participante debe avanzar a una fase posterior sin la transición explícita del plan.
+Este documento define el orden obligatorio de trabajo. La implementación inicial de la fase `NEXT` corresponde normalmente a ChatGPT; Codex verifica esa implementación en el equipo local conforme a `AGENTS.md` y sólo corrige cuando el prompt activo lo autoriza expresamente. Ningún participante debe avanzar a una fase posterior sin la transición explícita del plan.
 
 Estados permitidos:
 - `DONE`
