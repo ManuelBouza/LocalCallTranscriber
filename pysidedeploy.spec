@@ -8,7 +8,7 @@ icon =
 
 [python]
 python_path = .venv/Scripts/python.exe
-packages = nuitka==2.6.8,ordered_set,zstandard
+packages = nuitka==4.2.1,ordered_set,zstandard
 
 [qt]
 qml_files =
@@ -18,4 +18,4 @@ plugins = platforms
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --assume-yes-for-downloads --disable-cache=ccache --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=numpy --include-module=av.utils --include-module=av.sidedata.encparams --include-module=av.sidedata.motionvectors --include-package=faster_whisper --include-package=ctranslate2
+extra_args = --quiet --assume-yes-for-downloads --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=faster_whisper --include-package=ctranslate2
