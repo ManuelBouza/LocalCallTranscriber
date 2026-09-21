@@ -424,3 +424,36 @@ ambos preprocesados devolvieron exit code 0 sin stderr.
 soportado. Exponer temporalmente la ruta que contiene `psdk_inc` corrige el
 preprocesado usando exactamente el toolchain seleccionado por Nuitka y mantiene
 el cambio aislado al proceso de release.
+
+
+## D-034 — Incluir sólo los imports lazy requeridos de huggingface_hub
+
+**Estado:** Aceptada
+
+El standalone de v0.2.0 incluye explícitamente:
+
+- `huggingface_hub.utils._headers`;
+- `huggingface_hub.utils._fixes`;
+- `huggingface_hub.utils._validators`;
+- `huggingface_hub.utils.logging`.
+
+No se fuerza `--include-package=huggingface_hub.utils`.
+
+**Evidencia:** el primer standalone construido con Nuitka 4.2.1 arrancó, pero el
+package smoke falló con
+`ModuleNotFoundError: No module named 'huggingface_hub.utils._headers'`.
+En `huggingface_hub 1.32.0`, `utils.__getattr__` resuelve estos helpers mediante
+`importlib.import_module`, por lo que son imports dinámicos invisibles al
+análisis estático. La ruta usada por faster-whisper
+(`snapshot_download -> file_download`) accede lazy a esos cuatro módulos; otros
+helpers de esa ruta ya tienen imports estáticos directos.
+
+Nuitka recomienda `--include-module` para imports dinámicos conocidos y advierte
+que `--include-package` fuerza todos los submódulos. Por ello se incluyen sólo
+los módulos demostrablemente necesarios.
+
+El package smoke redirige además stdout/stderr a archivos temporales y vuelca su
+contenido al log del build cuando el ejecutable falla.
+
+**Motivo:** corregir el hidden import demostrado sin inflar innecesariamente el
+artefacto ni convertir un fallo futuro del ejecutable GUI en un exit code opaco.
