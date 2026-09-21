@@ -324,3 +324,48 @@ convertirse en política permanente.
 
 **Motivo:** preservar la estabilidad y reproducibilidad de la release que ya está
 siendo validada, sin perder los hallazgos de calidad obtenidos con audio real.
+
+
+## D-030 — Actualizar el toolchain de packaging antes de añadir más workarounds
+
+**Estado:** Aceptada
+
+La distribución Windows mantiene `pyside6-deploy` de PySide6 6.8.3 y modo
+`standalone`, pero el toolchain de packaging pasa de Nuitka 2.6.8 a
+Nuitka 4.2.1.
+
+Esta decisión sustituye, para el build actual, los workarounds específicos de
+Nuitka 2.6.8 documentados en D-028: se retiran
+`--disable-cache=ccache`, `--include-package=numpy` y los includes manuales
+de módulos dinámicos de PyAV. La nueva versión se validará primero con su
+resolución estándar de dependencias y su caché soportada.
+
+El fixture MP4 del package smoke se genera fuera del ejecutable empaquetado,
+desde la .venv de desarrollo. El ejecutable recibe ese MP4 por una ruta temporal
+y valida únicamente la ruta de producción: `tiny/cpu/int8` y
+TXT/JSON/SRT/VTT.
+
+**Motivo:** la validación con Nuitka 2.6.8 derivó en múltiples workarounds,
+recompilaciones completas e inclusión excesiva de NumPy. Antes de mantener
+excepciones locales debe comprobarse el comportamiento del toolchain actual.
+
+## D-031 — Codex valida por defecto y los builds largos se desacoplan
+
+**Estado:** Aceptada
+
+Codex actúa por defecto como verificador local. Si una validación descubre un
+defecto que exige cambios, reporta evidencia y se detiene; sólo puede modificar
+código, tests, configuración o documentación cuando el prompt activo lo
+autorice expresamente.
+
+Los builds largos de packaging no deben mantener un turno de Codex esperando.
+`scripts/start_package_build.ps1` inicia el build en un PowerShell separado.
+El worker escribe `build/package-build/build-status.json` con estados
+`RUNNING`, `SUCCESS` o `FAILED`, y conserva la salida en
+`build/package-build/build.log`. Codex inicia el proceso, reporta las rutas y
+termina el turno. La validación continúa sólo cuando el usuario confirme que el
+build terminó.
+
+**Motivo:** separar compilación de razonamiento evita consumo de tokens durante
+trabajo de CPU/C++ que no requiere intervención del agente y vuelve explícito el
+punto de control entre evidencia y corrección.
