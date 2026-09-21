@@ -1,8 +1,10 @@
 # Validación local de la Fase 12
 
 Esta checklist valida el release candidate `v0.2.0` después de la implementación
-inicial de ChatGPT. Codex puede ajustar código, scripts, tests o documentación si
-la evidencia local lo requiere.
+de ChatGPT. Codex actúa por defecto como verificador local: si encuentra un
+defecto que exige modificar código, tests, configuración o documentación, debe
+reportarlo y detenerse. No hará cambios salvo autorización explícita en el prompt
+activo.
 
 No crear el tag `v0.2.0`. La creación del tag corresponde a la auditoría final
 posterior de ChatGPT.
@@ -25,13 +27,7 @@ El árbol debe comenzar limpio.
 .\scripts\bootstrap.ps1 -WithGui
 ```
 
-Confirma:
-
-- CPython 3.11.x;
-- paquete instalado como versión `0.2.0`;
-- PySide6 6.8.3;
-- CLI nominal disponible;
-- GUI nominal disponible.
+Confirma CPython 3.11.x, paquete 0.2.0, PySide6 6.8.3 y ambos entry points.
 
 ## 3. Suite y dependencias
 
@@ -40,104 +36,109 @@ Confirma:
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Todo debe quedar verde. El CLI debe seguir funcionando sin depender del arranque
-de la GUI.
+Todo debe quedar verde.
 
-## 4. Dry-run del deploy
+## 4. Dry-run y preflight de release
 
 ```powershell
 .\scripts\package_gui.ps1 -DryRun
+.\scripts\release_audit.ps1 -SkipPackage
 ```
 
-Revisa el comando de Nuitka generado. La ruta elegida es
-`pyside6-deploy`/Nuitka, modo `standalone`.
+La ruta elegida es `pyside6-deploy`/Nuitka 4.2.1 en modo `standalone`.
+No deben aparecer los workarounds retirados de Nuitka 2.6.8:
+`--disable-cache=ccache`, `--include-package=numpy` ni includes manuales
+`av.*`.
 
-Si `dumpbin.exe` no está disponible, registra el warning y determina si la
-compilación real puede continuar correctamente en el equipo. Qt recomienda
-`dumpbin`/MSVC para el análisis eficiente de dependencias en Windows.
+Si `dumpbin.exe` no está disponible, registra el warning. No instales MSVC ni
+modifiques el sistema.
 
-## 5. Auditoría y build real
+Si cualquiera de estas comprobaciones falla, reporta el defecto y DETENTE. No
+corrijas el repositorio salvo autorización explícita.
 
-Con el árbol todavía limpio:
+## 5. Iniciar build real y terminar el turno
+
+No ejecutes `package_gui.ps1` directamente esperando su finalización.
 
 ```powershell
-.\scripts\release_audit.ps1
+.\scripts\start_package_build.ps1
+.\scripts\package_build_status.ps1
 ```
 
-Debe:
+El starter debe devolver rápidamente PID, ruta de
+`build\package-build\build-status.json` y ruta de
+`build\package-build\build.log`.
 
-- ejecutar nuevamente tests/preflight;
-- pasar `pip check`;
-- comprobar que no hay multimedia/transcripciones/modelos versionados;
-- comprobar patrones comunes de secretos;
-- confirmar que el tag `v0.2.0` aún no existe;
-- construir el paquete Windows;
-- ejecutar automáticamente el smoke `--package-smoke`;
-- rechazar pesos de modelos dentro del paquete;
-- generar `dist\package-manifest.json`.
+Si el estado es `RUNNING`, reporta esas rutas y **termina el turno
+inmediatamente**. No esperes, no hagas polling y no continúes.
 
-Conserva del manifest:
+El usuario puede consultar cuando quiera:
 
-- ruta del ejecutable;
-- SHA-256;
-- file count;
-- total bytes.
+```powershell
+.\scripts\package_build_status.ps1
+```
 
-## 6. Ejecutable empaquetado
+Estados: `RUNNING`, `SUCCESS`, `FAILED` o `BUILD_STATE_UNKNOWN`.
 
-Lanza el `LocalCallTranscriber.exe` encontrado por el manifest.
+## 6. Reanudar sólo después de confirmación del usuario
 
-Comprueba en Windows real:
+Cuando el usuario indique que el build terminó:
 
-1. abre la ventana Qt sin Python visible ni traceback;
-2. los controles de Fase 10/11 están presentes;
-3. la ventana sigue siendo responsiva;
-4. no aparece una consola adicional como interfaz normal;
-5. cerrar la aplicación termina el proceso normalmente.
+```powershell
+.\scripts\package_build_status.ps1
+```
 
-El smoke no interactivo ya valida dentro del paquete una transcripción real con
-MP4 temporal, `tiny`, CPU `int8` y outputs TXT/JSON/SRT/VTT.
+Si es `FAILED`, inspecciona `build.log`, reporta la causa y DETENTE.
+No apliques una corrección sin autorización explícita.
 
-## 7. CLI después del empaquetado
+Si es `SUCCESS`, confirma `dist\package-manifest.json` y conserva ruta del
+ejecutable, SHA-256, file count, total bytes y `package_smoke = true`.
 
-El empaquetado no debe alterar el CLI del checkout:
+El package smoke habrá usado un MP4 temporal creado fuera del ejecutable y habrá
+validado `tiny/cpu/int8` con TXT/JSON/SRT/VTT.
+
+## 7. Ejecutable empaquetado
+
+Lanza el `LocalCallTranscriber.exe` indicado por el manifest y comprueba que
+abre la GUI, permanece responsiva, no muestra una consola normal y cierra
+correctamente.
+
+## 8. CLI después del empaquetado
 
 ```powershell
 .\.venv\Scripts\local-call-transcriber.exe --help
 .\.venv\Scripts\python.exe -m local_call_transcriber --help
 ```
 
-Ambos deben seguir operativos y equivalentes.
-
-## 8. Integridad del repositorio
-
-Al finalizar:
+## 9. Integridad del repositorio
 
 ```powershell
 git status --short
 git tag --list v0.2.0
 ```
 
-`dist/` y los artefactos Nuitka deben permanecer ignorados. El árbol versionado
-debe seguir limpio y el tag debe seguir ausente.
+`dist/`, `build/` y los artefactos Nuitka deben permanecer ignorados. El tag
+debe seguir ausente.
 
 ## Reporte esperado de Codex
 
-Reporta:
+En el primer turno reporta sólo hasta el inicio del build desacoplado. En un
+turno posterior, después de confirmación del usuario, completa:
 
-- commit exacto validado;
-- clone limpio: PASS/FAIL;
-- bootstrap: PASS/FAIL;
+- commit exacto;
+- clone limpio;
+- bootstrap;
 - número de tests;
-- Ruff/pip check/preflight;
-- dry-run deploy;
-- build standalone;
+- Ruff/pip check;
+- dry-run/preflight;
+- PID/rutas de estado y log;
+- estado final del build;
 - package smoke;
-- manifest (SHA-256, files, bytes);
-- lanzamiento real de la GUI empaquetada;
-- CLI posterior al build;
+- manifest;
+- lanzamiento GUI;
+- CLI;
 - auditoría de datos/secretos;
-- limitaciones observadas;
-- cambios realizados, si los hubo, con commit/push.
+- limitaciones.
 
-No marques la Fase 12 como DONE y no crees el tag.
+No marques la Fase 12 como DONE, no crees el tag y no modifiques el repositorio
+sin autorización explícita.
