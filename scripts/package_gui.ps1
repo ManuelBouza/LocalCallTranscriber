@@ -19,6 +19,33 @@ $expectedVersion = '0.2.0'
 $smokeInputVariable = 'LOCALCALLTRANSCRIBER_PACKAGE_SMOKE_INPUT'
 $originalSmokeInput = [Environment]::GetEnvironmentVariable($smokeInputVariable, 'Process')
 
+function Invoke-NativeCaptured {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath,
+        [Parameter(Mandatory = $false)]
+        [string[]]$Arguments = @()
+    )
+
+    # Windows PowerShell 5.1 turns native stderr into PowerShell ErrorRecords and
+    # $ErrorActionPreference='Stop' can abort the script before $LASTEXITCODE is
+    # inspected. Keep stderr visible/loggable but decide success from exit code.
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $output = & $FilePath @Arguments
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+
+    [pscustomobject]@{
+        Output = @($output)
+        ExitCode = $exitCode
+    }
+}
+
 if ($env:OS -ne 'Windows_NT') {
     throw 'El paquete de release se construye únicamente en Windows.'
 }
@@ -36,13 +63,21 @@ if (-not (Test-Path -LiteralPath $smokeFixtureScript -PathType Leaf)) {
 }
 $originalSpecBytes = [IO.File]::ReadAllBytes($specFile)
 
-$installedVersion = & $venvPython -c 'import importlib.metadata; print(importlib.metadata.version("local-call-transcriber"))'
-if ($LASTEXITCODE -ne 0 -or $installedVersion.ToString().Trim() -ne $expectedVersion) {
+$versionProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
+    '-c',
+    "from importlib.metadata import version; print(version('local-call-transcriber'))"
+)
+$installedVersion = ($versionProbe.Output | Select-Object -Last 1).ToString().Trim()
+if ($versionProbe.ExitCode -ne 0 -or $installedVersion -ne $expectedVersion) {
     throw "La .venv no contiene LocalCallTranscriber $expectedVersion. Ejecuta .\scripts\bootstrap.ps1 -WithGui después de sincronizar el repositorio."
 }
 
-$qtVersion = & $venvPython -c 'import PySide6; print(PySide6.__version__)'
-if ($LASTEXITCODE -ne 0 -or $qtVersion.ToString().Trim() -ne '6.8.3') {
+$qtProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
+    '-c',
+    'import PySide6; print(PySide6.__version__)'
+)
+$qtVersion = ($qtProbe.Output | Select-Object -Last 1).ToString().Trim()
+if ($qtProbe.ExitCode -ne 0 -or $qtVersion -ne '6.8.3') {
     throw 'La ruta de release requiere PySide6 6.8.3.'
 }
 
@@ -68,9 +103,10 @@ try {
         $deployArguments += '--keep-deployment-files'
     }
 
-    & $deployTool @deployArguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "pyside6-deploy falló con código $LASTEXITCODE."
+    $deployProbe = Invoke-NativeCaptured -FilePath $deployTool -Arguments $deployArguments
+    $deployProbe.Output | ForEach-Object { Write-Host $_ }
+    if ($deployProbe.ExitCode -ne 0) {
+        throw "pyside6-deploy falló con código $($deployProbe.ExitCode)."
     }
 
     if ($DryRun) {
@@ -103,8 +139,12 @@ try {
         New-Item -ItemType Directory -Path $smokeWorkspace -Force | Out-Null
         $smokeInput = Join-Path $smokeWorkspace 'smoke.mp4'
 
-        & $venvPython $smokeFixtureScript $smokeInput
-        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $smokeInput -PathType Leaf)) {
+        $fixtureProbe = Invoke-NativeCaptured -FilePath $venvPython -Arguments @(
+            $smokeFixtureScript,
+            $smokeInput
+        )
+        $fixtureProbe.Output | ForEach-Object { Write-Host $_ }
+        if ($fixtureProbe.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $smokeInput -PathType Leaf)) {
             throw 'No se pudo generar el MP4 temporal para el package smoke.'
         }
 
