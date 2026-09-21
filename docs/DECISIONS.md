@@ -428,7 +428,7 @@ el cambio aislado al proceso de release.
 
 ## D-034 — Incluir sólo los imports lazy requeridos de huggingface_hub
 
-**Estado:** Aceptada
+**Estado:** Sustituida por D-035
 
 El standalone de v0.2.0 incluye explícitamente:
 
@@ -457,3 +457,29 @@ contenido al log del build cuando el ejecutable falla.
 
 **Motivo:** corregir el hidden import demostrado sin inflar innecesariamente el
 artefacto ni convertir un fallo futuro del ejecutable GUI en un exit code opaco.
+
+
+## D-035 — Incluir el subpaquete lazy completo huggingface_hub.utils
+
+**Estado:** Aceptada
+
+El standalone de v0.2.0 usa
+`--include-package=huggingface_hub.utils`.
+
+No se fuerza `--include-package=huggingface_hub` completo y se retiran los
+`--include-module=huggingface_hub.utils.*` puntuales introducidos inicialmente.
+
+**Evidencia:** tras añadir sólo `_headers`, `_fixes`, `_validators` y
+`logging`, el siguiente package smoke avanzó más pero falló con
+`ModuleNotFoundError: huggingface_hub.utils._safetensors`. En
+`huggingface_hub 1.32.0`, `utils.__getattr__` resuelve numerosos helpers desde
+`_SUBMOD_ATTRS` mediante `importlib.import_module`.
+
+Nuitka 4.2.1 contiene tratamiento especial para el facade lazy raíz
+`huggingface_hub`, pero no contiene manejo equivalente para
+`huggingface_hub.utils` en `ImplicitImports.py` ni en
+`standard.nuitka-package.config.yml`.
+
+**Motivo:** incluir el subpaquete `utils` completo corrige la clase entera de
+imports dinámicos de ese facade sin incorporar todo `huggingface_hub` y evita
+iteraciones de build de un módulo lazy por vez.
