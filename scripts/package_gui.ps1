@@ -13,8 +13,11 @@ $venvPython = Join-Path $repositoryRoot '.venv\Scripts\python.exe'
 $deployTool = Join-Path $repositoryRoot '.venv\Scripts\pyside6-deploy.exe'
 $specFile = Join-Path $repositoryRoot 'pysidedeploy.spec'
 $distDir = Join-Path $repositoryRoot 'dist'
+$smokeWorkspace = Join-Path $repositoryRoot 'build\package-smoke'
+$smokeFixtureScript = Join-Path $repositoryRoot 'deploy\create_package_smoke_fixture.py'
 $expectedVersion = '0.2.0'
-$originalCIncludePath = $env:C_INCLUDE_PATH
+$smokeInputVariable = 'LOCALCALLTRANSCRIBER_PACKAGE_SMOKE_INPUT'
+$originalSmokeInput = [Environment]::GetEnvironmentVariable($smokeInputVariable, 'Process')
 
 if ($env:OS -ne 'Windows_NT') {
     throw 'El paquete de release se construye únicamente en Windows.'
@@ -27,6 +30,9 @@ if (-not (Test-Path -LiteralPath $deployTool -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $specFile -PathType Leaf)) {
     throw "No se encontró la configuración de deploy: $specFile"
+}
+if (-not (Test-Path -LiteralPath $smokeFixtureScript -PathType Leaf)) {
+    throw "No se encontró el generador del fixture de package smoke: $smokeFixtureScript"
 }
 $originalSpecBytes = [IO.File]::ReadAllBytes($specFile)
 
@@ -50,27 +56,6 @@ try {
         Remove-Item -LiteralPath $distDir -Recurse -Force
     }
 
-    if (-not $DryRun) {
-        # Nuitka descarga su MinGW64 compatible cuando no hay MSVC. En esta
-        # versión del toolchain, las rutas -I que genera Nuitka requieren
-        # volver a exponer sus cabeceras como ruta de sistema para resolver
-        # _mingw_stdarg.h.
-        & $venvPython -m pip install 'nuitka==2.6.8' 'ordered_set' 'zstandard'
-        if ($LASTEXITCODE -ne 0) {
-            throw "No se pudieron preparar las dependencias de build de Nuitka (código $LASTEXITCODE)."
-        }
-        $mingwGcc = & $venvPython -c 'from nuitka.utils.Download import getCachedDownloadedMinGW64; print(getCachedDownloadedMinGW64("x86_64", True, True))'
-        if ($LASTEXITCODE -ne 0) {
-            throw "No se pudo preparar el compilador MinGW64 de Nuitka (código $LASTEXITCODE)."
-        }
-        $mingwRoot = Split-Path -Parent (Split-Path -Parent $mingwGcc.ToString().Trim())
-        $mingwInclude = Join-Path $mingwRoot 'x86_64-w64-mingw32\include'
-        if (-not (Test-Path -LiteralPath $mingwInclude -PathType Container)) {
-            throw "No se encontró el directorio de cabeceras MinGW64 de Nuitka: $mingwInclude"
-        }
-        $env:C_INCLUDE_PATH = $mingwInclude
-    }
-
     $deployArguments = @(
         '-c', $specFile,
         '--name', 'LocalCallTranscriber',
@@ -90,7 +75,7 @@ try {
 
     if ($DryRun) {
         Write-Host 'PASS: configuración de pyside6-deploy evaluada en modo dry-run.' -ForegroundColor Green
-        exit 0
+        return
     }
 
     $executables = @(
@@ -112,8 +97,18 @@ try {
     $executable = $executables[0]
 
     if (-not $SkipPackageSmoke) {
-        # El ejecutable es una aplicación GUI sin consola: invocarlo con '&'
-        # no espera su finalización de forma fiable y puede ocultar un fallo.
+        if (Test-Path -LiteralPath $smokeWorkspace) {
+            Remove-Item -LiteralPath $smokeWorkspace -Recurse -Force
+        }
+        New-Item -ItemType Directory -Path $smokeWorkspace -Force | Out-Null
+        $smokeInput = Join-Path $smokeWorkspace 'smoke.mp4'
+
+        & $venvPython $smokeFixtureScript $smokeInput
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $smokeInput -PathType Leaf)) {
+            throw 'No se pudo generar el MP4 temporal para el package smoke.'
+        }
+
+        [Environment]::SetEnvironmentVariable($smokeInputVariable, $smokeInput, 'Process')
         $smokeProcess = Start-Process -FilePath $executable.FullName -ArgumentList '--package-smoke' -Wait -PassThru
         if ($smokeProcess.ExitCode -ne 0) {
             throw "El smoke del ejecutable empaquetado falló con código $($smokeProcess.ExitCode)."
@@ -151,9 +146,10 @@ try {
     Write-Host "Manifest: $manifestPath" -ForegroundColor Green
 }
 finally {
-    # pyside6-deploy normaliza rutas y reescribe el spec; la configuración
-    # versionada debe permanecer portable y el dry-run no debe ensuciar Git.
     [IO.File]::WriteAllBytes($specFile, $originalSpecBytes)
-    $env:C_INCLUDE_PATH = $originalCIncludePath
+    [Environment]::SetEnvironmentVariable($smokeInputVariable, $originalSmokeInput, 'Process')
+    if (Test-Path -LiteralPath $smokeWorkspace) {
+        Remove-Item -LiteralPath $smokeWorkspace -Recurse -Force
+    }
     Pop-Location
 }
