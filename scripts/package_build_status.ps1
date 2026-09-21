@@ -25,6 +25,13 @@ if ($effectiveState -eq 'RUNNING' -and $status.pid) {
     }
 }
 
+switch ($effectiveState) {
+    'RUNNING' { Write-Host 'BUILD_PROCESS_RUNNING' }
+    'SUCCESS' { Write-Host 'BUILD_SUCCESS' }
+    'FAILED' { Write-Host 'BUILD_FAILED' }
+    default { Write-Host 'BUILD_STATE_UNKNOWN' }
+}
+
 Write-Host "State:      $effectiveState"
 Write-Host "PID:        $($status.pid)"
 Write-Host "Started:    $($status.started_at)"
@@ -45,7 +52,7 @@ if ($Tail -gt 0 -and (Test-Path -LiteralPath $status.log -PathType Leaf)) {
 
 switch ($effectiveState) {
     'SUCCESS' { exit 0 }
+    'RUNNING' { exit 0 }
     'FAILED' { exit 1 }
-    'RUNNING' { exit 3 }
     default { exit 2 }
 }
