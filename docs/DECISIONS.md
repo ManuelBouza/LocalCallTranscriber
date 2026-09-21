@@ -396,3 +396,31 @@ tratamiento de `stderr` de comandos nativos y en el paso de argumentos. La
 documentación de Microsoft confirma que PowerShell 7 corrigió que
 `$ErrorActionPreference` afectase a `stderr` de comandos nativos. El cambio
 elimina esa dependencia y conserva compatibilidad de fallback con 5.1.
+
+
+## D-033 — Exponer temporalmente el include raíz del WinLibs de Nuitka
+
+**Estado:** Aceptada
+
+El build Windows conserva Nuitka 4.2.1, su WinLibs/MinGW64 soportado y
+`ccache`. Antes de invocar `pyside6-deploy`, `scripts/package_gui.ps1`
+resuelve dinámicamente el `gcc.exe` mediante
+`getCachedDownloadedMinGW64("x86_64", True, True)`, deriva
+`x86_64-w64-mingw32\include` y lo antepone temporalmente a
+`C_INCLUDE_PATH`.
+
+El script verifica explícitamente que
+`psdk_inc\intrin-impl.h` exista y restaura el valor original de
+`C_INCLUDE_PATH` en `finally`. No modifica PATH ni variables persistentes del
+sistema.
+
+**Evidencia:** con Nuitka 4.2.1/WinLibs GCC 15.2.0, la cabecera
+`intrin-impl.h` existía en el toolchain pero el preprocesado de
+`#include <intrin.h>` fallaba tanto con GCC directo como mediante `ccache`.
+Al establecer únicamente `C_INCLUDE_PATH` al include raíz del mismo WinLibs,
+ambos preprocesados devolvieron exit code 0 sin stderr.
+
+**Motivo:** el fallo no era de `ccache` ni requería cambiar a un compilador no
+soportado. Exponer temporalmente la ruta que contiene `psdk_inc` corrige el
+preprocesado usando exactamente el toolchain seleccionado por Nuitka y mantiene
+el cambio aislado al proceso de release.
