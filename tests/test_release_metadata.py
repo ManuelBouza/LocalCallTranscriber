@@ -83,4 +83,7 @@ def test_detached_package_build_has_observable_state() -> None:
     assert "'SUCCESS'" in worker
     assert "'FAILED'" in worker
     assert "exit_code" in worker
+    assert "BUILD_PROCESS_RUNNING" in status
+    assert "BUILD_SUCCESS" in status
+    assert "BUILD_FAILED" in status
     assert "BUILD_STATE_UNKNOWN" in status
