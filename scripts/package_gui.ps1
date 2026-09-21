@@ -207,8 +207,22 @@ try {
         }
 
         [Environment]::SetEnvironmentVariable($smokeInputVariable, $smokeInput, 'Process')
-        $smokeProcess = Start-Process -FilePath $executable.FullName -ArgumentList '--package-smoke' -Wait -PassThru
+        $smokeStdout = Join-Path $smokeWorkspace 'stdout.txt'
+        $smokeStderr = Join-Path $smokeWorkspace 'stderr.txt'
+        $smokeProcess = Start-Process `
+            -FilePath $executable.FullName `
+            -ArgumentList '--package-smoke' `
+            -RedirectStandardOutput $smokeStdout `
+            -RedirectStandardError $smokeStderr `
+            -Wait `
+            -PassThru
         if ($smokeProcess.ExitCode -ne 0) {
+            if (Test-Path -LiteralPath $smokeStdout -PathType Leaf) {
+                Get-Content -LiteralPath $smokeStdout | ForEach-Object { Write-Host $_ }
+            }
+            if (Test-Path -LiteralPath $smokeStderr -PathType Leaf) {
+                Get-Content -LiteralPath $smokeStderr | ForEach-Object { Write-Host $_ }
+            }
             throw "El smoke del ejecutable empaquetado falló con código $($smokeProcess.ExitCode)."
         }
     }
