@@ -32,7 +32,19 @@ New-Item -ItemType Directory -Path $stateDirectory -Force | Out-Null
 Remove-Item -LiteralPath $statusPath -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $logPath -Force -ErrorAction SilentlyContinue
 
-$powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
+if ($PSVersionTable.PSEdition -eq 'Core') {
+    $powershell = Join-Path $PSHOME 'pwsh.exe'
+}
+else {
+    $pwsh = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+    if ($null -ne $pwsh) {
+        $powershell = $pwsh.Source
+    }
+    else {
+        $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
+    }
+}
+
 $argumentList = @(
     '-NoProfile',
     '-ExecutionPolicy', 'Bypass',
@@ -48,6 +60,7 @@ while (-not (Test-Path -LiteralPath $statusPath -PathType Leaf) -and (Get-Date) 
 }
 
 Write-Host "BUILD_STARTED PID=$($process.Id)"
+Write-Host "Host:   $powershell"
 Write-Host "Status: $statusPath"
 Write-Host "Log:    $logPath"
 Write-Host 'Consulta: .\scripts\package_build_status.ps1'
