@@ -483,3 +483,26 @@ Nuitka 4.2.1 contiene tratamiento especial para el facade lazy raíz
 **Motivo:** incluir el subpaquete `utils` completo corrige la clase entera de
 imports dinámicos de ese facade sin incorporar todo `huggingface_hub` y evita
 iteraciones de build de un módulo lazy por vez.
+
+
+## D-036 — Incluir explícitamente el asset Silero VAD de faster-whisper
+
+**Estado:** Aceptada
+
+El standalone de v0.2.0 añade:
+
+`--include-package-data=faster_whisper:assets/silero_vad_v6.onnx`
+
+**Evidencia:** tras resolver los imports lazy de `huggingface_hub.utils`, el
+package smoke avanzó hasta inicializar el VAD y falló con
+`NO_SUCHFILE` para
+`faster_whisper/assets/silero_vad_v6.onnx`. En `faster-whisper 1.2.1`,
+`vad.py` construye esa ruta desde `get_assets_path()`, y el upstream
+distribuye el archivo como package data mediante `MANIFEST.in`.
+
+La documentación de Nuitka indica que los data files de paquetes se omiten por
+defecto y que `--include-package-data` es la opción preferida para incluirlos.
+
+**Motivo:** conservar el package smoke con VAD habilitado y validar la ruta de
+producción real, en lugar de desactivar VAD para ocultar una dependencia que el
+ejecutable necesita.
