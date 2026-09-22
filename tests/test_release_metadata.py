@@ -36,7 +36,7 @@ def test_pyside_deploy_is_reproducible_standalone() -> None:
     assert "--include-module=av." not in extra_args
     assert "--include-package=faster_whisper" in extra_args
     assert "--include-package=ctranslate2" in extra_args
-    assert "--include-package-data=faster_whisper:assets/silero_vad_v6.onnx" in extra_arg_tokens
+    assert "--include-package-data=faster_whisper" in extra_arg_tokens
     assert "--include-package=huggingface_hub.utils" in extra_arg_tokens
     assert "--include-package=huggingface_hub" not in extra_arg_tokens
     assert "--include-module=huggingface_hub.utils." not in extra_args
