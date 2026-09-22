@@ -18,4 +18,4 @@ plugins = platforms
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --assume-yes-for-downloads --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=faster_whisper --include-package=ctranslate2 --include-package=huggingface_hub.utils --include-package-data=faster_whisper:assets/silero_vad_v6.onnx
+extra_args = --quiet --assume-yes-for-downloads --noinclude-qt-translations --windows-console-mode=disable --include-package=local_call_transcriber --include-package=faster_whisper --include-package=ctranslate2 --include-package=huggingface_hub.utils --include-package-data=faster_whisper
