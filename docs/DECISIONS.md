@@ -487,7 +487,7 @@ iteraciones de build de un módulo lazy por vez.
 
 ## D-036 — Incluir explícitamente el asset Silero VAD de faster-whisper
 
-**Estado:** Aceptada
+**Estado:** Sustituida por D-037
 
 El standalone de v0.2.0 añade:
 
@@ -506,3 +506,26 @@ defecto y que `--include-package-data` es la opción preferida para incluirlos.
 **Motivo:** conservar el package smoke con VAD habilitado y validar la ruta de
 producción real, en lugar de desactivar VAD para ocultar una dependencia que el
 ejecutable necesita.
+
+
+## D-037 — Incluir package data completo de faster_whisper
+
+**Estado:** Aceptada
+
+El standalone de v0.2.0 usa:
+
+`--include-package-data=faster_whisper`
+
+en lugar de un patrón con subruta.
+
+**Evidencia:** Nuitka 4.2.1 compara los patrones de
+`--include-package-data` contra una ruta relativa obtenida con
+`os.path.relpath`. En Windows esa ruta usa separadores `\`, por lo que un
+patrón con `/` puede no coincidir. En `faster-whisper 1.2.1`, el directorio
+`faster_whisper/assets` contiene únicamente `__init__.py` y
+`silero_vad_v6.onnx`; el único data file real de ese directorio es el modelo
+Silero VAD.
+
+**Motivo:** incluir los package data del paquete elimina una dependencia frágil
+del separador de rutas y sigue siendo una inclusión muy acotada. El código
+Python no se duplica porque Nuitka no trata los módulos Python como data files.
