@@ -49,7 +49,9 @@ La ruta elegida es `pyside6-deploy`/Nuitka 4.2.1 en modo `standalone`.
 No deben aparecer los workarounds retirados de Nuitka 2.6.8:
 `--disable-cache=ccache`, `--include-package=numpy` ni includes manuales
 `av.*`. La configuración debe incluir `--include-package=huggingface_hub.utils`
-y no debe incluir `--include-package=huggingface_hub` completo.
+y no debe incluir `--include-package=huggingface_hub` completo. Debe incluir además
+`--include-package-data=faster_whisper:assets/silero_vad_v6.onnx` para conservar
+el modelo Silero VAD requerido por la ruta de producción.
 
 Si `dumpbin.exe` no está disponible, registra el warning. No instales MSVC ni
 modifiques el sistema.
